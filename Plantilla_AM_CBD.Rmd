@@ -1,0 +1,832 @@
+---
+#title: _key
+#author: "Jheynner Adler Castro Rojas"
+#date: "22/9/2021"
+output: 
+  word_document:
+    reference_docx: template.docx
+params:
+  my_class: "Nacional"
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+dpto<-params$my_class
+titulo<-toupper(dpto)
+Sys.setlocale(locale = "es_ES.UTF-8")
+```
+
+###### "Decenio de la Igualdad de oportunidades para mujeres y hombres"
+
+# ESTRATEGIA CIERRE DE BRECHA DIGITAL 
+# `r titulo`
+
+
+## CRITERIOS DE FOCALIZACIÓN CIERRE DE BRECHA DIGITAL (CBD) FASE I
+
+El **Decreto Supremo N.º 006-2020-MINEDU y su Fe de Erratas[^1]**, definen los criterios de focalización de la estrategia **“Cierre de Brecha Digital” Fase I**, beneficiando a los estudiantes y docentes de los servicios educativos priorizados, **establecido en el artículo 7**, que incluyen a los estudiantes y docentes de 4to a 6to de primaria y de 1ero a 5to de secundaria que pertenezcan a la zona rural y en la zona urbana quintil 1 y 2 de pobreza y que además para la Fase I se cumplan con lo establecido en los siguientes criterios de focalización.
+
+
+Para la incorporación de internet móvil en la tableta con contenido pedagógico digital, adicional a los criterios mencionados anteriormente, el D.S. N.º 006-2020-MINEDU y su Fe de Erratas refieren que, en el caso de estudiantes, “estar matriculado en un servicio educativo ubicado en un centro poblado con cobertura de internet 3G o superior”; y en el caso de docentes, “contar con plaza nombrada o contratada en un servicio educativo ubicado en un centro poblado con cobertura de internet 3G o superior” usando como fuente de información los registros de conectividad a internet por centro poblado del Ministerio de Transporte y Comunicaciones (MTC) al tercer trimestre de 2019.
+
+
+Para la incorporación de un cargador solar a la tableta con contenido pedagógico, tanto en el caso de estudiantes y docentes, el D.S. N.º 006-2020-MINEDU refiere que se necesita ser miembro de un hogar que no cuente con ningún tipo de fuente de energía eléctrica usando como fuente de información el Censo Educativo 2019, Modulado complementario MINEDU del Sistema Integrado de Gestión Administrativa al 27 de marzo del 2020, Semáforo Escuela 2019, Operativo Pre-BIAE 2020 MINEDU y Censo de Población y Vivienda 2017.
+
+[^1]:Emitido en el marco del DL 1465 - Decreto Legislativo que establece disposiciones que garanticen la continuidad del servicio educativo en la educación básica y superior en todas sus modalidades, en el marco de las acciones preventivas y de control ante el riesgo de propagación del COVID-19.
+
+
+```{r echo=FALSE,include=FALSE }
+library(flextable)
+library(tidyverse)
+library(janitor)
+load("./CBD.rdata")
+load("./data_consolidada.rdata")
+digitos<-function(x){
+  m<-format(x,big.mark = ",")
+  return(m)
+  }
+
+contaf1 <- 
+  programados %>%
+      filter( if(dpto!="Nacional") Departamento == chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto)) else T) %>% 
+        summarise(c000=n(),
+            c000d=digitos(c000),
+            c001=sum(TABLETAS),
+            c001d=digitos(c001),
+            c001_1=sum(TABLETAS.ESTUDIANTE),
+            p001_1=round(c001_1/c001*100,2),
+            c001_1d=digitos(c001_1),
+            c001_2=sum(TABLETAS.DOCENTE),
+            p001_2=round(c001_2/c001*100,2),
+            c001_2d=digitos(c001_2),
+            c002=sum(PLANES),
+            p002=round(c002/c001*100,2),
+            c002d=digitos(c002),
+            c002_1=sum(PLANES.ESTUDIANTE),
+            p002_1=round(c002_1/c002*100,2),
+            c002_1d=digitos(c002_1),
+            c002_2=sum(PLANES.DOCENTE),
+            p002_2=round(c002_2/c002*100,2),
+            c002_2d=digitos(c002_2),
+            c003=sum(CARGADORES),
+            p003=round(c003/c001*100,2),
+            c003d=digitos(c003),
+            c003_1=sum(CARGADORES.ESTUDIANTE),
+            p003_1=round(c003_1/c003*100,2),
+            c003_1d=digitos(c003_1),
+            c003_2=sum(CARGADORES.DOCENTE),
+            p003_2=round(c003_2/c003*100,2),
+            c003_2d=digitos(c003_2))
+    
+  
+ubicacion<-if(dpto!="Nacional"){
+  paste("el departamento de **",dpto,"** tiene programada ",sep="")
+  }else{
+    paste("a nivel **Nacional** se tiene programado ")}
+```
+
+## RESULTADO DE LA FOCALIZACIÓN DE CIERRE DE BRECHA DIGITAL FASE I
+
+Como resultado de la focalización[^2] de **(CBD) Fase I**, `r ubicacion` un total de **`r contaf1$c001d` tabletas**,  **`r contaf1$c001_1d` (`r contaf1$p001_1`%) son destinadas a estudiantes y `r contaf1$c001_2d` (`r contaf1$p001_2`%) destinadas a docentes**. Atendiendo a **`r contaf1$c000d`** instituciones educativas.
+
+Se programó un total de **`r contaf1$c002d` tabletas que incluyen planes de datos**[^3], que representa el **`r contaf1$p002`%** del total tabletas programadas; de las cuales **`r contaf1$c002_1d` (`r contaf1$p002_1`%) son destinadas a estudiantes y `r contaf1$c002_2d` (`r contaf1$p002_2`%) destinadas a docentes**.
+
+Se programó un total de **`r contaf1$c003d` cargadores solares** que representa el **`r contaf1$p003`%** del total tabletas programadas; **`r contaf1$c003_1d` (`r contaf1$p003_1`%) destinadas a estudiantes y `r contaf1$c003_2d` (`r contaf1$p003_2`%) destinadas a docentes**.
+
+[^2]:La base de datos que implementa la focalización de la Fase I fue remitida a DITE por la Unidad de Estadística del Minedu con MEMORANDUM 00083-2020-MINEDU/SPE-OSEE.
+[^3]:Las cantidades de planes de datos está establecida según la contratación realizada para este 2022.
+
+
+
+```{r echo=FALSE,warning=FALSE,message=FALSE}
+
+
+  if(dpto!="Nacional"){
+    tabla01<-programados %>% 
+      filter(Departamento==chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto))) %>% 
+      group_by(UGEL) %>%
+      summarise(IIEE=n(),
+                TOTAL_t=sum(TABLETAS),EST_t=sum(TABLETAS.ESTUDIANTE),DOC_t=sum(TABLETAS.DOCENTE),
+                TOTAL_p=sum(PLANES),EST_p=sum(PLANES.ESTUDIANTE),DOC_p=sum(PLANES.DOCENTE),
+                TOTAL_c=sum(CARGADORES),EST_c=sum(CARGADORES.ESTUDIANTE),DOC_c=sum(CARGADORES.DOCENTE)) 
+    pie<-programados %>% 
+      filter(Departamento==chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto))) %>% 
+      summarise(UGEL="TOTAL GENERAL",
+                IIEE=n(),
+                TOTAL_t=sum(TABLETAS),EST_t=sum(TABLETAS.ESTUDIANTE),DOC_t=sum(TABLETAS.DOCENTE),
+                TOTAL_p=sum(PLANES),EST_p=sum(PLANES.ESTUDIANTE),DOC_p=sum(PLANES.DOCENTE),
+                TOTAL_c=sum(CARGADORES),EST_c=sum(CARGADORES.ESTUDIANTE),DOC_c=sum(CARGADORES.DOCENTE))
+  }else{
+      tabla01<-programados %>%
+        rename(DEPARTAMENTO=Departamento) %>%
+      group_by(DEPARTAMENTO) %>%
+      summarise(IIEE=n(),
+                TOTAL_t=sum(TABLETAS),EST_t=sum(TABLETAS.ESTUDIANTE),DOC_t=sum(TABLETAS.DOCENTE),
+                TOTAL_p=sum(PLANES),EST_p=sum(PLANES.ESTUDIANTE),DOC_p=sum(PLANES.DOCENTE),
+                TOTAL_c=sum(CARGADORES),EST_c=sum(CARGADORES.ESTUDIANTE),DOC_c=sum(CARGADORES.DOCENTE))
+      pie<-programados %>% 
+      summarise(DEPARTAMENTO="TOTAL GENERAL",
+                IIEE=n(),
+                TOTAL_t=sum(TABLETAS),EST_t=sum(TABLETAS.ESTUDIANTE),DOC_t=sum(TABLETAS.DOCENTE),
+                TOTAL_p=sum(PLANES),EST_p=sum(PLANES.ESTUDIANTE),DOC_p=sum(PLANES.DOCENTE),
+                TOTAL_c=sum(CARGADORES),EST_c=sum(CARGADORES.ESTUDIANTE),DOC_c=sum(CARGADORES.DOCENTE))
+  }
+if(dpto!="Nacional"){tabla<-flextable(tabla01,cwidth = c(1.1,rep(.54,10)))}else{tabla<-flextable(tabla01,cwidth = c(0.9,rep(.6,10)))}
+
+tabla<-add_header_row(tabla,
+                      colwidths = c(1,1,3,3,3),
+                      values = c(ifelse(dpto!="Nacional","UGEL","DEPARTAMENTO"),"IIEE", 
+                                 "TABLETAS","PLANES DE DATOS","CARGADORES SOLARES"),
+                      top = T )
+tabla<-add_footer_row(tabla,values = pie,colwidths = rep(1,11))
+tabla<-theme_vanilla(tabla)
+tabla <- merge_v(tabla,j = c(ifelse(dpto!="Nacional","UGEL","DEPARTAMENTO")),part = "header")
+tabla <- merge_v(tabla,j = c("IIEE"),part = "header")
+tabla<-set_header_labels( tabla, Departamento="DEPARTAMENTO",
+                          UGEL = "UGEL",IIEE="IIEE",
+                          TOTAL_t="TOTAL",EST_t="EST",DOC_t="DOC",
+                          TOTAL_p="TOTAL",EST_p="EST",DOC_p="DOC",
+                          TOTAL_c="TOTAL",EST_c="EST",DOC_c="DOC")
+
+tabla<-align(tabla,align = "center",part = "header")
+tabla<-fontsize(tabla,size = 7,part = "header")
+tabla<-fontsize(tabla,size = 7,part = "body")
+tabla<-fontsize(tabla,size = 7,part = "footer")
+tabla<-bg(tabla,bg = "#8EA9DB",part = "footer")
+tabla<-bg(tabla,bg = "#8EA9DB",part = "header")
+tabla<-align(tabla,j=c(2:11),align = "right",part = "footer")
+tabla
+  
+```
+
+## CRITERIOS DE FOCALIZACIÓN CIERRE DE BRECHA DIGITAL (CBD) FASE II
+Mediante el **Decreto Supremo N.º 016-2020-MINEDU[^1], que define la Fase II** de la estrategia **“Cierre de Brecha Digital”, cumpliendo con priorizar a los estudiantes y docentes que no fueron atendidos en la Fase I**; cabe resaltar que estos beneficiarios deben cumplir con los criterios de focalización definidos en el **Decreto Supremo N.º 006-2020-MINEDU y su Fe de Erratas**.
+
+```{r echo=FALSE,include=FALSE }
+
+contaf2 <- 
+  
+  data_consolidada %>%
+  filter( if(dpto!="Nacional") D_DPTO == chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto)) else T) %>% 
+  filter(FASE2==1) %>%
+  summarise(c000=n(),
+            c000d=digitos(c000),
+            c001=sum(F2_Tabletas,na.rm=T),
+            c001d=digitos(c001),
+            c001_1=sum(F2_Estudiantes,na.rm=T),
+            p001_1=round(c001_1/c001*100,2),
+            c001_1d=digitos(c001_1),
+            c001_2=sum(F2_Docentes,na.rm=T),
+            p001_2=round(c001_2/c001*100,2),
+            c001_2d=digitos(c001_2),
+            c002=sum(F2_Internet,na.rm=T),
+            p002=round(c002/c001*100,2),
+            c002d=digitos(c002),
+            c002_1=sum(F2_Estudiantes_Internet,na.rm=T),
+            p002_1=round(c002_1/c002*100,2),
+            c002_1d=digitos(c002_1),
+            c002_2=sum(F2_Docentes_Internet,na.rm=T),
+            p002_2=round(c002_2/c002*100,2),
+            c002_2d=digitos(c002_2),
+            c003=sum(F2_Ncargador,na.rm=T),
+            p003=round(c003/c001*100,2),
+            c003d=digitos(c003),
+            c003_1=sum(F2_Estudiantes_Ncargador,na.rm=T),
+            p003_1=round(c003_1/c003*100,2),
+            c003_1d=digitos(c003_1),
+            c003_2=sum(F2_Docentes_Ncargador,na.rm=T),
+            p003_2=round(c003_2/c003*100,2),
+            c003_2d=digitos(c003_2))
+ubicacion <- if(dpto!="Nacional"){paste("para el departamento de **",dpto,"**",sep="")}else{paste("a nivel **Nacional**")}
+  
+```
+
+##	RESULTADO DE LA FOCALIZACIÓN DE CIERRE DE BRECHA DIGITAL FASE II
+Como resultado de la focalización del **"Cierre de Brecha Digital", en la Fase II[^4]** , `r ubicacion` se programó la entrega de un total de **`r contaf2$c001d` tabletas, `r contaf2$c001_1d` (`r contaf2$p001_1`%) destinadas a estudiantes y `r contaf2$c001_2d` (`r contaf2$p001_2`%) destinadas a docentes.**. Atendiendo a `r contaf2$c000d` instituciones educativas.
+
+Adicionalmente, se programó la entrega de un total de **`r contaf2$c002d` tabletas que incluyen planes de datos** que representa el **`r contaf2$p002`%** del total tabletas programadas para la Fase II; **`r contaf2$c002_1d` (`r contaf2$p002_1`%) destinadas a estudiantes y `r contaf2$c002_2d` (`r contaf2$p002_2`%) destinadas a docentes.**
+
+Por último, se programó la entrega un total de **`r contaf2$c003d` cargadores solares** que representa el **`r contaf2$p003`%** del total tabletas programadas para la Fase II; **`r contaf2$c003_1d` (`r contaf2$p003_1`%) destinadas a estudiantes y `r contaf2$c003_2d` (`r contaf2$p003_2`%) destinadas a docentes.**
+
+[^4]:La focalización de la Fase II, fue remitida a DITE por la UE con Memorándum N.º 00005-2021-MINEDU/SPE-O-SEE e Informe Técnico de Resultados N° 00001-MINEDU/SPE-OSEE-UE de fecha 08.01.2021.\newpage
+
+
+
+```{r echo=FALSE,warning=FALSE,message=FALSE,}
+if(dpto!="Nacional"){
+  tabla02<-data_consolidada %>% 
+    filter(D_DPTO==chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto))) %>%
+    rename("UGEL"="D_DREUGEL") %>%
+    filter(FASE2==1) %>%
+    group_by(UGEL) %>%
+    summarise(IIEE=n(),
+              TOTAL_t=sum(F2_Tabletas,na.rm = T),
+              EST_t=sum(F2_Estudiantes,na.rm = T),DOC_t=sum(F2_Docentes,na.rm = T),
+              TOTAL_p=sum(F2_Internet,na.rm = T),
+              EST_p=sum(F2_Estudiantes_Internet,na.rm = T),DOC_p=sum(F2_Docentes_Internet,na.rm = T),
+              TOTAL_c=sum(F2_Ncargador,na.rm = T),
+              EST_c=sum(F2_Estudiantes_Ncargador,na.rm = T),DOC_c=sum(F2_Docentes_Ncargador,na.rm = T))
+  pie<-data_consolidada %>% 
+    filter(D_DPTO==chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto))) %>%
+    filter(FASE2==1) %>%
+    summarise(UGEL="TOTAL GENERAL",
+              IIEE=n(),
+              TOTAL_t=sum(F2_Tabletas,na.rm = T),
+              EST_t=sum(F2_Estudiantes,na.rm = T),DOC_t=sum(F2_Docentes,na.rm = T),
+              TOTAL_p=sum(F2_Internet,na.rm = T),
+              EST_p=sum(F2_Estudiantes_Internet,na.rm = T),DOC_p=sum(F2_Docentes_Internet,na.rm = T),
+              TOTAL_c=sum(F2_Ncargador,na.rm = T),
+              EST_c=sum(F2_Estudiantes_Ncargador,na.rm = T),DOC_c=sum(F2_Docentes_Ncargador,na.rm = T))
+}else{
+      tabla02<-data_consolidada %>% 
+        #select(-Departamento) %>%
+        rename("DEPARTAMENTO"="D_DPTO") %>%
+        filter(FASE2==1) %>%
+        group_by(DEPARTAMENTO) %>%
+        summarise(IIEE=n(),
+                  TOTAL_t=sum(F2_Tabletas,na.rm = T),
+                  EST_t=sum(F2_Estudiantes,na.rm = T),DOC_t=sum(F2_Docentes,na.rm = T),
+                  TOTAL_p=sum(F2_Internet,na.rm = T),
+                  EST_p=sum(F2_Estudiantes_Internet,na.rm = T),DOC_p=sum(F2_Docentes_Internet,na.rm = T),
+                  TOTAL_c=sum(F2_Ncargador,na.rm = T),
+                  EST_c=sum(F2_Estudiantes_Ncargador,na.rm = T),DOC_c=sum(F2_Docentes_Ncargador,na.rm = T))
+      pie<-data_consolidada %>% 
+        filter(FASE2==1) %>%
+        summarise(DEPARTAMENTO="TOTAL GENERAL",
+                  IIEE=n(),
+                  TOTAL_t=sum(F2_Tabletas,na.rm = T),
+                  EST_t=sum(F2_Estudiantes,na.rm = T),DOC_t=sum(F2_Docentes,na.rm = T),
+                  TOTAL_p=sum(F2_Internet,na.rm = T),
+                  EST_p=sum(F2_Estudiantes_Internet,na.rm = T),DOC_p=sum(F2_Docentes_Internet,na.rm = T),
+                  TOTAL_c=sum(F2_Ncargador,na.rm = T),
+                  EST_c=sum(F2_Estudiantes_Ncargador,na.rm = T),DOC_c=sum(F2_Docentes_Ncargador,na.rm = T))
+  }
+tabla<-flextable(tabla02,cwidth = c(1.1,rep(.53,10)))
+if(dpto!="Nacional"){
+  tabla<-add_header_row(tabla,
+                        colwidths = c(1,1,3,3,3),
+                        values = c("UGEL","IIEE", 
+                                   "TABLETAS","PLANES DE DATOS","CARGADORES SOLARES"),
+                        top = T )
+}else{
+    tabla<-add_header_row(tabla,
+                        colwidths = c(1,1,3,3,3),
+                        values = c("DEPARTAMENTO","IIEE", 
+                                   "TABLETAS","PLANES DE DATOS","CARGADORES SOLARES"),
+                        top = T )
+}
+
+tabla<-add_footer_row(tabla,values = pie,colwidths = rep(1,11))
+tabla<-theme_vanilla(tabla)
+tabla <- merge_v(tabla,j = c(ifelse(dpto!="Nacional","UGEL","DEPARTAMENTO")),part = "header")
+tabla <- merge_v(tabla,j = c("IIEE"),part = "header")
+tabla<-set_header_labels( tabla, DEPARTAMENTO="DEPARTAMENTO",UGEL = "UGEL",IIEE="IIEE",
+                          TOTAL_t="TOTAL",EST_t="EST",DOC_t="DOC",
+                          TOTAL_p="TOTAL",EST_p="EST",DOC_p="DOC",
+                          TOTAL_c="TOTAL",EST_c="EST",DOC_c="DOC")
+tabla<-align(tabla,align = "center",part = "header")
+tabla<-fontsize(tabla,size = 7,part = "header")
+tabla<-fontsize(tabla,size = 7,part = "body")
+tabla<-bg(tabla,bg = "#8EA9DB",part = "header")
+tabla<-fontsize(tabla,size = 7,part = "footer")
+tabla<-bg(tabla,bg = "#8EA9DB",part = "footer")
+tabla<-align(tabla,j=c(2:11),align = "right",part = "footer")
+tabla
+  
+```
+
+
+```{r echo=FALSE,warning=FALSE,message=FALSE}
+fecha <- toupper(format(as.Date(actualizacion),"%d de %B del %Y"))
+
+entregf1 <- 
+  programados %>%
+  filter( if(dpto!="Nacional") Departamento == chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto)) else T) %>% 
+  summarise(c000=sum(ifelse(EN.IIEE>0,1,0)),
+            c000d=digitos(c000),
+            c001=sum(EN.IIEE),
+            p001=round(c001/contaf1$c001*100,2),
+            c001d=digitos(c001),
+            c001_1=sum(EN.IIEE.ESTUDIANTE),
+            p001_1=round(c001_1/contaf1$c001*100,2),
+            c001_1d=digitos(c001_1),
+            c001_2=sum(EN.IIEE.DOCENTE),
+            p001_2=round(c001_2/c001*100,2),
+            c001_2d=digitos(c001_2),
+            c002=sum(EN.IIEE.PLANES),
+            p002=100,#PARACAMBIAR
+            c002d=digitos(c002),
+            c002_1=sum(EN.IIEE.PLANES.ESTUDIANTE),
+            p002_1=round(c002_1/c002*100,2),
+            c002_1d=digitos(c002_1),
+            c002_2=sum(EN.IIEE.PLANES.DOCENTE),
+            p002_2=round(c002_2/c002*100,2),
+            c002_2d=digitos(c002_2),
+            c003=sum(EN.IIEE.CARGADORES),
+            p003=round(c003/contaf1$c003*100,2),
+            c003d=digitos(c003),
+            c003_1=sum(EN.IIEE.CARGADORES.ESTUDIANTE),
+            p003_1=round(c003_1/c003*100,2),
+            c003_1d=digitos(c003_1),
+            c003_2=sum(EN.IIEE.CARGADORES.DOCENTE),
+            p003_2=round(c003_2/c003*100,2),
+            c003_2d=digitos(c003_2))
+if((entregf1$c003)>0)
+{
+  cargadores<-paste("A su vez, **",entregf1$c003d," (",entregf1$p003,"%) cargadores solares**, corresponden a **",entregf1$c003_1d," estudiantes y ",entregf1$c003_2d," docentes**. Atendiendo a **",entregf1$c000d,"** instituciones educativas.",sep="")
+}else{
+  cargadores<-""  
+}
+
+pendientef1 <- 
+  programados %>% 
+    filter( if(dpto!="Nacional") Departamento == chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto)) else T) %>%
+    summarise(c001=sum(EN.RUTA),
+             p001=round(c001/contaf1$c001*100,2),
+             c001d=digitos(c001),
+             c001_1=sum(EN.RUTA.ESTUDIANTE),
+             p001_1=round(c001_1/contaf1$c001_1*100,2),
+             c001_1d=digitos(c001_1),
+             c001_2=sum(EN.RUTA.DOCENTE),
+             p001_2=round(c001_2/contaf1$c001_2*100,2),
+             c001_2d=digitos(c001_2),
+             c002=sum(EN.RUTA.PLANES),
+             p002=round(c002/contaf1$c002*100,2),
+             c002d=digitos(c002),
+             c002_1=sum(EN.RUTA.PLANES.ESTUDIANTE),
+             p002_1=round(c002_1/contaf1$c002_1*100,2),
+             c002_1d=digitos(c002_1),
+             c002_2=sum(EN.RUTA.PLANES.DOCENTE),
+             p002_2=round(c002_2/contaf1$c002_2*100,2),
+             c002_2d=digitos(c002_2),
+             c003=sum(EN.RUTA.CARGADORES),
+             p003=round(c003/contaf1$c003*100,2),
+             c003d=digitos(c003),
+             c003_1=sum(EN.RUTA.CARGADORES.ESTUDIANTE),
+             p003_1=round(c003_1/contaf1$c003_1*100,2),
+             c003_1d=digitos(c003_1),
+             c003_2=sum(EN.RUTA.CARGADORES.DOCENTE),
+             p003_2=round(c003_2/contaf1$c003_2*100,2),
+             c003_2d=digitos(c003_2))
+
+if(pendientef1$c001>0)
+{
+  if(pendientef1$c003>0){
+    pendiente<-paste("Asimismo, se encuentran en ruta **",pendientef1$c001d," (",pendientef1$p001,"%) tabletas**; de las cuales **",pendientef1$c001_1d,"** corresponden a estudiantes y **",pendientef1$c001_2d,"** a docentes; un total de **",pendientef1$c002d," (",pendientef1$p002,"%) incluyen planes de datos**, de las cuales corresponden **",pendientef1$c002_1d,"** a estudiantes y **",pendientef1$c002_2d,"** a docentes; y un total de **",pendientef1$c003d," (",pendientef1$p003,"%) cargadores**, de los cuales corresponden **",pendientef1$c003_1d,"** a estudiantes y **",pendientef1$c003_2d,"** a docentes.",sep="")
+  }else{
+    pendiente<-paste("Asimismo, se encuentran en ruta **",pendientef1$c001d," (",pendientef1$p001,"%) tabletas**; de las cuales **",pendientef1$c001_1d,"** corresponden a estudiantes y **",pendientef1$c001_2d,"** a docentes; un total de **",pendientef1$c002d," (",pendientef1$p002,"%) incluyen planes de datos**, de los cuales corresponden **",pendientef1$c002_1d,"** a estudiantes y **",pendientef1$c002_2d,"** a docentes.",sep="")
+  }
+}else{
+  if(pendientef1$c003>0){
+    pendiente<-paste("Así mismo, a la fecha, ninguna tableta queda pendiente de entrega, sin embargo, aún queda pendiente la entrega de **",pendientef1$c003d," (",pendientef1$p003,"%)"," cargadores solares**. ",sep="")
+  }else{
+    pendiente<-"Así mismo, a la fecha, ninguna tableta ni sus complementos queda pendiente de entrega."
+  }
+}
+
+```
+
+## DISTRIBUCIÓN Y ENTREGA AL `r fecha `[^5] EN LA FASE I
+A la fecha se han **entregado `r entregf1$c001d` (`r entregf1$p001`%) tabletas** de la Fase I; de las cuales corresponden a **`r entregf1$c001_1d`** estudiantes y **`r entregf1$c001_2d`** docentes. Un total de **`r entregf1$c002d` (`r entregf1$p002`%) tabletas incluyen planes de datos**; de las cuales corresponden **`r entregf1$c002_1d` a estudiantes y `r entregf1$c002_2d` a docentes**. `r cargadores`
+
+`r pendiente`
+
+[^5]:De acuerdo al Memorando N.º 012-2021-MINEDU/VMGP (10.02.2021), la distribución y entrega de tabletas y sus complementos está a cargo de DIGERE. La fuente de información del presente acápite es la información remitida vía correo por la DIGERE hacia DITE conforme el avance de tabletas y sus complementos.
+
+```{r echo=FALSE,warning=FALSE,message=FALSE}
+if(dpto!="Nacional"){
+  tabla03<-programados %>% 
+    filter(Departamento==chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto))) %>%
+    group_by(UGEL) %>%
+    summarise(IIEE=sum(ifelse(EN.IIEE>0,1,0)),
+              TOTAL_t=sum(EN.IIEE,na.rm = T),
+              EST_t=sum(EN.IIEE.ESTUDIANTE,na.rm = T),DOC_t=sum(EN.IIEE.DOCENTE,na.rm = T),
+              TOTAL_p=sum(EN.IIEE.PLANES,na.rm = T),
+              EST_p=sum(EN.IIEE.PLANES.ESTUDIANTE,na.rm = T),DOC_p=sum(EN.IIEE.PLANES.DOCENTE,na.rm = T),
+              TOTAL_c=sum(EN.IIEE.CARGADORES,na.rm = T),
+              EST_c=sum(EN.IIEE.CARGADORES.ESTUDIANTE,na.rm = T),DOC_c=sum(EN.IIEE.CARGADORES.DOCENTE,na.rm = T))
+   pie<-programados %>% 
+    filter(Departamento==chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto))) %>%
+    summarise(UGEL="TOTAL GENERAL",
+              IIEE=sum(ifelse(EN.IIEE>0,1,0)),
+              TOTAL_t=sum(EN.IIEE,na.rm = T),
+              EST_t=sum(EN.IIEE.ESTUDIANTE,na.rm = T),DOC_t=sum(EN.IIEE.DOCENTE,na.rm = T),
+              TOTAL_p=sum(EN.IIEE.PLANES,na.rm = T),
+              EST_p=sum(EN.IIEE.PLANES.ESTUDIANTE,na.rm = T),DOC_p=sum(EN.IIEE.PLANES.DOCENTE,na.rm = T),
+              TOTAL_c=sum(EN.IIEE.CARGADORES,na.rm = T),
+              EST_c=sum(EN.IIEE.CARGADORES.ESTUDIANTE,na.rm = T),DOC_c=sum(EN.IIEE.CARGADORES.DOCENTE,na.rm = T))
+  
+}else{
+    tabla03<-programados %>% 
+      rename(DEPARTAMENTO=Departamento) %>%
+      group_by(DEPARTAMENTO) %>%
+      summarise(IIEE=sum(ifelse(EN.IIEE>0,1,0)),
+                TOTAL_t=sum(EN.IIEE,na.rm = T),
+                EST_t=sum(EN.IIEE.ESTUDIANTE,na.rm = T),DOC_t=sum(EN.IIEE.DOCENTE,na.rm = T),
+                TOTAL_p=sum(EN.IIEE.PLANES,na.rm = T),
+                EST_p=sum(EN.IIEE.PLANES.ESTUDIANTE,na.rm = T),DOC_p=sum(EN.IIEE.PLANES.DOCENTE,na.rm = T),
+                TOTAL_c=sum(EN.IIEE.CARGADORES,na.rm = T),
+                EST_c=sum(EN.IIEE.CARGADORES.ESTUDIANTE,na.rm = T),DOC_c=sum(EN.IIEE.CARGADORES.DOCENTE,na.rm = T))
+   pie<-programados %>% 
+    summarise(DEPARTAMENTO="TOTAL GENERAL",
+              IIEE=sum(ifelse(EN.IIEE>0,1,0)),
+              TOTAL_t=sum(EN.IIEE,na.rm = T),
+              EST_t=sum(EN.IIEE.ESTUDIANTE,na.rm = T),DOC_t=sum(EN.IIEE.DOCENTE,na.rm = T),
+              TOTAL_p=sum(EN.IIEE.PLANES,na.rm = T),
+              EST_p=sum(EN.IIEE.PLANES.ESTUDIANTE,na.rm = T),DOC_p=sum(EN.IIEE.PLANES.DOCENTE,na.rm = T),
+              TOTAL_c=sum(EN.IIEE.CARGADORES,na.rm = T),
+              EST_c=sum(EN.IIEE.CARGADORES.ESTUDIANTE,na.rm = T),DOC_c=sum(EN.IIEE.CARGADORES.DOCENTE,na.rm = T))
+}
+if(dpto!="Nacional"){tabla<-flextable(tabla03,cwidth = c(1.1,rep(.54,10)))}else{tabla<-flextable(tabla03,cwidth = c(1,rep(.6,10)))}
+
+
+tabla<-add_header_row(tabla,
+                      colwidths = c(1,1,3,3,3),
+                      values = c(ifelse(dpto!="Nacional","UGEL","DEPARTAMENTO"),"IIEE", 
+                                 "TABLETAS","PLANES DE DATOS","CARGADORES SOLARES"),
+                      top = T )
+tabla<-add_footer_row(tabla,values = pie,colwidths = rep(1,11))
+tabla<-theme_vanilla(tabla)
+tabla <- merge_v(tabla,j = c(ifelse(dpto!="Nacional","UGEL","DEPARTAMENTO")),part = "header")
+tabla <- merge_v(tabla,j = c("IIEE"),part = "header")
+tabla<-set_header_labels( tabla, DEPARTAMENTO="DEPARTAMENTO",UGEL = "UGEL",IIEE="IIEE",
+                          TOTAL_t="TOTAL",EST_t="EST",DOC_t="DOC",
+                          TOTAL_p="TOTAL",EST_p="EST",DOC_p="DOC",
+                          TOTAL_c="TOTAL",EST_c="EST",DOC_c="DOC")
+tabla<-align(tabla,align = "center",part = "header")
+tabla<-fontsize(tabla,size = 7,part = "header")
+tabla<-fontsize(tabla,size = 7,part = "body")
+tabla<-bg(tabla,bg = "#8EA9DB",part = "header")
+tabla<-fontsize(tabla,size = 7,part = "footer")
+tabla<-bg(tabla,bg = "#8EA9DB",part = "footer")
+tabla<-align(tabla,j=c(2:11),align = "right",part = "footer")
+tabla
+  
+```
+
+```{r echo=FALSE,warning=FALSE,message=FALSE}
+load("./CBDF2.rdata")
+fechaf2 <- toupper(format(as.Date(fecha2),"%d de %B del %Y"))
+
+cbdf2 <- 
+  dff2 %>% 
+  filter( if(dpto!="Nacional") d_dpto == chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto)) else T) %>% 
+  summarise(d000=sum(ifelse(f2_desp_tab>0,1,0),na.rm = T),
+            d000d=digitos(d000),
+            d001=sum(f2_desp_tab),
+            dp001=round(d001/sum(f2_tab,na.rm = T)*100,2),
+            d001d=digitos(d001),
+            d001_1=sum(f2_desp_tab_est),
+            dp001_1=round(d001_1/sum(f2_tab,na.rm = T)*100,2),
+            d001_1d=digitos(d001_1),
+            d001_2=sum(f2_desp_tab_doc),
+            dp001_2=round(d001_2/d001*100,2),
+            d001_2d=digitos(d001_2),
+            d002=sum(f2_desp_inter),
+            dp002=round(d002/sum(f2_inter,na.rm = T)*100,2),
+            d002d=digitos(d002),
+            d002_1=sum(f2_desp_inter_est),
+            dp002_1=round(d002_1/d002*100,2),
+            d002_1d=digitos(d002_1),
+            d002_2=sum(f2_desp_inter_doc),
+            dp002_2=round(d002_2/d002*100,2),
+            d002_2d=digitos(d002_2),
+            d003=sum(f2_desp_carg),
+            dp003=round(d003/sum(f2_carg,na.rm = T)*100,2),
+            d003d=digitos(d003),
+            d003_1=sum(f2_desp_carg_est),
+            dp003_1=round(d003_1/d003*100,2),
+            d003_1d=digitos(d003_1),
+            d003_2=sum(f2_desp_carg_doc),
+            dp003_2=round(d003_2/d003*100,2),
+            d003_2d=digitos(d003_2),
+            
+            i000=sum(ifelse(f2_enie_tab>0,1,0),na.rm = T),
+            i000d=digitos(i000),
+            i001=sum(f2_enie_tab),
+            ip001=round(i001/sum(f2_tab,na.rm = T)*100,2),
+            i001d=digitos(i001),
+            i001_1=sum(f2_enie_tab_est),
+            ip001_1=round(i001_1/sum(f2_tab,na.rm = T)*100,2),
+            i001_1d=digitos(i001_1),
+            i001_2=sum(f2_enie_tab_doc),
+            ip001_2=round(i001_2/i001*100,2),
+            i001_2d=digitos(i001_2),
+            i002=sum(f2_enie_inter),
+            ip002=round(i002/sum(f2_inter,na.rm = T)*100,2),
+            i002d=digitos(i002),
+            i002_1=sum(f2_enie_inter_est),
+            ip002_1=round(i002_1/i002*100,2),
+            i002_1d=digitos(i002_1),
+            i002_2=sum(f2_enie_inter_doc),
+            ip002_2=round(i002_2/i002*100,2),
+            i002_2d=digitos(i002_2),
+            i003=sum(f2_enie_carg),
+            ip003=round(i003/sum(f2_carg,na.rm = T)*100,2),
+            i003d=digitos(i003),
+            i003_1=sum(f2_enie_carg_est),
+            ip003_1=round(i003_1/i003*100,2),
+            i003_1d=digitos(i003_1),
+            i003_2=sum(f2_enie_carg_doc),
+            ip003_2=round(i003_2/i003*100,2),
+            i003_2d=digitos(i003_2),
+            
+            r000=sum(ifelse(f2_enrut_tab>0,1,0),na.rm = T),
+            r000d=digitos(r000),
+            r001=sum(f2_enrut_tab),
+            rp001=round(r001/sum(f2_tab,na.rm = T)*100,2),
+            r001d=digitos(r001),
+            r001_1=sum(f2_enrut_tab_est),
+            rp001_1=round(r001_1/sum(f2_tab,na.rm = T)*100,2),
+            r001_1d=digitos(r001_1),
+            r001_2=sum(f2_enrut_tab_doc),
+            rp001_2=round(r001_2/r001*100,2),
+            r001_2d=digitos(r001_2),
+            r002=sum(f2_enrut_inter),
+            rp002=round(r002/sum(f2_inter,na.rm = T)*100,2),
+            r002d=digitos(r002),
+            r002_1=sum(f2_enrut_inter_est),
+            rp002_1=round(r002_1/r002*100,2),
+            r002_1d=digitos(r002_1),
+            r002_2=sum(f2_enrut_inter_doc),
+            rp002_2=round(r002_2/r002*100,2),
+            r002_2d=digitos(r002_2),
+            r003=sum(f2_enrut_carg),
+            rp003=round(r003/sum(f2_carg,na.rm = T)*100,2),
+            r003d=digitos(r003),
+            r003_1=sum(f2_enrut_carg_est),
+            rp003_1=round(r003_1/r003*100,2),
+            r003_1d=digitos(r003_1),
+            r003_2=sum(f2_enrut_carg_doc),
+            rp003_2=round(r003_2/r003*100,2),
+            r003_2d=digitos(r003_2),
+            
+            p000=sum(ifelse(f2_pend_tab>0,1,0),na.rm = T),
+            p000d=digitos(p000),
+            p001=sum(f2_pend_tab),
+            pp001=round(p001/sum(f2_tab,na.rm = T)*100,2),
+            p001d=digitos(p001),
+            p001_1=sum(f2_pend_tab_est),
+            pp001_1=round(p001_1/sum(f2_tab,na.rm = T)*100,2),
+            p001_1d=digitos(p001_1),
+            p001_2=sum(f2_pend_tab_doc),
+            pp001_2=round(p001_2/p001*100,2),
+            p001_2d=digitos(p001_2),
+            p002=sum(f2_pend_inter),
+            pp002=round(p002/sum(f2_inter,na.rm = T)*100,2),
+            p002d=digitos(p002),
+            p002_1=sum(f2_pend_inter_est),
+            pp002_1=round(p002_1/p002*100,2),
+            p002_1d=digitos(p002_1),
+            p002_2=sum(f2_pend_inter_doc),
+            pp002_2=round(p002_2/p002*100,2),
+            p002_2d=digitos(p002_2),
+            p003=sum(f2_pend_carg),
+            pp003=round(p003/sum(f2_carg,na.rm = T)*100,2),
+            p003d=digitos(p003),
+            p003_1=sum(f2_pend_carg_est),
+            pp003_1=round(p003_1/p003*100,2),
+            p003_1d=digitos(p003_1),
+            p003_2=sum(f2_pend_carg_doc),
+            pp003_2=round(p003_2/p003*100,2),
+            p003_2d=digitos(p003_2)
+            )
+
+#ENTREGA F2
+if(cbdf2$i003>0){
+  entregacarg<-paste("Con respecto a la entrega cargadores solares, **",cbdf2$i003d," (",cbdf2$ip003,"%) cargadores solares**, corresponden a **",cbdf2$i003_1d,"** estudiantes y **",cbdf2$i003_2d,"** docentes. Atendiendo a **",cbdf2$i000d," instituciones educativas**.",sep="")  
+}else{
+  entregacarg<-""
+}
+
+if(cbdf2$i001>0){
+  entregaf2<-paste("A la fecha se han **entregado",cbdf2$i001d," (",cbdf2$ip001,"%) tabletas** de la Fase I; de las cuales corresponden a **",cbdf2$i001_1d,"** estudiantes y **", cbdf2$i001_2d,"** docentes. Un total de **",cbdf2$i002d," (",cbdf2$ip002,"%) tabletas incluyen planes de datos**; de las cuales corresponden **",cbdf2$i002_1d,"** a estudiantes y **",cbdf2$i002_2d,"** a docentes.",entregacarg,sep="")
+}else {entregaf2 <- paste("A la fecha de la actualización no se ha contabilizado la entrega, a las instituciones educativas focalizadas,", ifelse(cbdf2$i003>0,paste(" de ninguna tableta. ",(entregacarg),sep="")," de ningún dispositivo electrónico, bien sea tabletas o cargadores solares."),sep="")}
+
+#DESPACHO F2
+if(cbdf2$d001>0){
+  despachof2<-paste("Por otro lado, se han venido despachando un total de **",cbdf2$d001d," (",cbdf2$dp001,"%) tabletas**; de las cuales **",cbdf2$d001_1d,"** corresponden a estudiantes y **",cbdf2$d001_2d,"** a docentes; un total de **",cbdf2$d002d," (",cbdf2$dp002,"%) incluyen planes de datos**, de las cuales corresponden **",cbdf2$d002_1d,"** a estudiantes y **",cbdf2$d002_2d,"** a docentes; y un total de **",cbdf2$d003d," (",cbdf2$dp003,"%) cargadores**, de los cuales corresponden **",cbdf2$d003_1d,"** a estudiantes y **",cbdf2$d003_2d,"** a docentes.",sep="")
+}else{
+  despachof2<-""
+}
+
+#PENDIENTE F2
+
+if(cbdf2$p001>0){
+  pendientef2<-paste("Quedando pendiente **",cbdf2$p001d," (",cbdf2$pp001,"%) tabletas** (**",cbdf2$p001_1d,"** a estudiantes y **",cbdf2$p001_2d,"** a docentes); **",cbdf2$p002d," (",cbdf2$pp002,"%) planes de datos** (**",cbdf2$p002_1d,"** a estudiantes y **",cbdf2$p002_2d,"** a docentes); y **",cbdf2$p003d," (",cbdf2$pp003,"%) cargadores solares** (**",cbdf2$p003_1d,"** a estudiantes y **",cbdf2$p003_2d,"** a docentes).",sep="")
+}else{
+  pendientef2<-""
+}
+
+```
+
+
+## DISTRIBUCIÓN Y ENTREGA AL `r fechaf2 ` EN LA FASE II
+`r entregaf2` 
+
+`r despachof2` 
+`r pendientef2` 
+
+```{r echo=FALSE,warning=FALSE,message=FALSE}
+tabla04<-dff2 %>% 
+    filter( if(dpto!="Nacional") d_dpto == chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto)) else T) %>%
+    group_by(X=if(dpto!="Nacional") d_dreugel else d_dpto) %>%
+    summarise(IIEE=sum(ifelse(f2_enie_tab>0,1,0)),
+              TOTAL_t=sum(f2_enie_tab,na.rm = T),
+              EST_t=sum(f2_enie_tab_est,na.rm = T),DOC_t=sum(f2_enie_tab_doc,na.rm = T),
+              TOTAL_p=sum(f2_enie_inter,na.rm = T),
+              EST_p=sum(f2_enie_inter_est,na.rm = T),DOC_p=sum(f2_enie_inter_doc,na.rm = T),
+              TOTAL_c=sum(f2_enie_carg,na.rm = T),
+              EST_c=sum(f2_enie_carg_est,na.rm = T),DOC_c=sum(f2_enie_carg_doc,na.rm = T))
+   pie<-dff2 %>% 
+    filter( if(dpto!="Nacional") d_dpto == chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto)) else T) %>%
+    summarise(X="TOTAL GENERAL",
+              IIEE=sum(ifelse(f2_enie_tab>0,1,0)),
+              TOTAL_t=sum(f2_enie_tab,na.rm = T),
+              EST_t=sum(f2_enie_tab_est,na.rm = T),DOC_t=sum(f2_enie_tab_doc,na.rm = T),
+              TOTAL_p=sum(f2_enie_inter,na.rm = T),
+              EST_p=sum(f2_enie_inter_est,na.rm = T),DOC_p=sum(f2_enie_inter_doc,na.rm = T),
+              TOTAL_c=sum(f2_enie_carg,na.rm = T),
+              EST_c=sum(f2_enie_carg_est,na.rm = T),DOC_c=sum(f2_enie_carg_doc,na.rm = T))
+  
+names(tabla04)[1]<-ifelse(dpto!="Nacional","UGEL","DEPARTAMENTO")
+if(dpto!="Nacional"){tabla<-flextable(tabla04,cwidth = c(1.1,rep(.54,10)))}else{tabla<-flextable(tabla04,cwidth = c(1,rep(.6,10)))}
+
+
+tabla<-add_header_row(tabla,
+                      colwidths = c(1,1,3,3,3),
+                      values = c(ifelse(dpto!="Nacional","UGEL","DEPARTAMENTO"),"IIEE", 
+                                 "TABLETAS","PLANES DE DATOS","CARGADORES SOLARES"),
+                      top = T )
+tabla<-add_footer_row(tabla,values = pie,colwidths = rep(1,11))
+tabla<-theme_vanilla(tabla)
+tabla <- merge_v(tabla,j = c(ifelse(dpto!="Nacional","UGEL","DEPARTAMENTO")),part = "header")
+tabla <- merge_v(tabla,j = c("IIEE"),part = "header")
+tabla<-set_header_labels( tabla, DEPARTAMENTO="DEPARTAMENTO",UGEL = "UGEL",IIEE="IIEE",
+                          TOTAL_t="TOTAL",EST_t="EST",DOC_t="DOC",
+                          TOTAL_p="TOTAL",EST_p="EST",DOC_p="DOC",
+                          TOTAL_c="TOTAL",EST_c="EST",DOC_c="DOC")
+tabla<-align(tabla,align = "center",part = "header")
+tabla<-fontsize(tabla,size = 7,part = "header")
+tabla<-fontsize(tabla,size = 7,part = "body")
+tabla<-bg(tabla,bg = "#8EA9DB",part = "header")
+tabla<-fontsize(tabla,size = 7,part = "footer")
+tabla<-bg(tabla,bg = "#8EA9DB",part = "footer")
+tabla<-align(tabla,j=c(2:11),align = "right",part = "footer")
+if(cbdf2$i001>0)
+tabla
+  
+```
+
+
+
+```{r echo=FALSE,warning=FALSE,message=FALSE}
+
+library(googledrive)
+library(googlesheets4)
+
+jp_folder <- "https://drive.google.com/drive/folders/1UjvV0CPbu3kQKLanWTDxRUoNdYsUehSL"
+#googledrive::drive_auth()
+googledrive::drive_auth(path = "your-app-folder-name/.secrets/calcium-chalice-291219-c0edbd3ab245.json")
+
+folder_id <- drive_get(as_id(jp_folder))
+
+files <- drive_ls(folder_id)
+files<-files %>% 
+  mutate(fec=trimws(gsub("[a-zA-Z.-]","",name)),
+         fec=paste(substr(fec,1,4),substr(fec,5,6),substr(fec,7,8),sep="-"),
+         fec=as.Date(fec))
+
+file<-files %>% filter(fec==max(files$fec))
+
+if(NROW(file)>1){
+  dateT<-as.character()
+  for(i in 1:dim(file)[1])dateT<-append(dateT,file$drive_resource[[i]]$createdTime)
+  dateT<-as.Date(substr(dateT,1,10))
+  file$fecT<-dateT
+  rm(dateT)
+  file<-file %>% filter(fecT==max(fecT))
+}
+
+fecha3<-toupper(format(as.Date(file$fec),"%d de %B del %Y"))
+temp = tempfile(fileext = ".xlsx")
+download.file(file$drive_resource[[1]]$webContentLink, destfile=temp, mode='wb')
+
+gcSn <- openxlsx::read.xlsx(temp, sheet =1)
+names(gcSn)<-c("ID","Departamento","Código.ATET","UGEL","Nombre.ATET",
+               "Nombre.IIEE","Código.Modular","anexo","NIVEL",
+               paste("P",str_pad(rep(1:60),width = 3,pad = "0"),sep=""))
+tgcSn <- gcSn %>%
+  filter( if(dpto!="Nacional") Departamento == chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto)) else T) %>%
+  summarise(p000=n(),
+            p000d=digitos(p000),
+            p000_1=sum(ifelse(NIVEL=="Primaria",1,0),na.rm = T),
+            p000_1d=digitos(p000_1),
+            p000_2=sum(ifelse(NIVEL=="Secundaria",1,0),na.rm = T),
+            p000_2d=digitos(p000_2),
+            p001=sum(P006,na.rm = T),
+            p001d=digitos(p001),
+            p001_1=sum(P008,na.rm = T),
+            p001_1d=digitos(p001_1),
+            pp001_1=round(p001_1/p001*100,2),
+            p001_2=sum(P007,na.rm = T),
+            p001_2d=digitos(p001_2),
+            pp001_2=round(p001_2/p001*100,2),
+            
+            a001=sum(P012,na.rm = T),
+            a001d=digitos(a001),
+            ap001=round(a001/p001*100,2),
+            a001_1=sum(P014,na.rm = T),
+            a001_1d=digitos(a001_1),
+            ap001_1=round(a001_1/p001_1*100,2),
+            a001_2=sum(P013,na.rm = T),
+            a001_2d=digitos(a001_2),
+            ap001_2=round(a001_2/p001_2*100,2)
+            )
+
+```
+
+## ACTUALIZACIÓN DEL GESTOR DE CONTENIDOS EN ZONAS SIN CONECTIVIDAD AL `r fecha3`
+
+A la fecha `r ubicacion` se ha programado la actualización de un total de **`r tgcSn$p001d` tabletas**[^6] (**`r tgcSn$p001_1d`** de estudiantes y **`r tgcSn$p001_2d`** de docentes) distribuidas en **`r tgcSn$p000d` instituciones educativas** (**`r tgcSn$p000_1d`** de primaria y **`r tgcSn$p000_2d`** de secundaria); habiéndose actualizado un total de **`r tgcSn$a001d` (`r tgcSn$ap001`%) tabletas**, **`r tgcSn$a001_1d` (`r tgcSn$ap001_1`%)** de estudiantes y **`r tgcSn$a001_2d` (`r tgcSn$ap001_2`%)** de docentes.
+
+
+
+[^6]:Las instituciones educativas programadas corresponden a las  focalización en la Fase I (2021) de la estretegia "Cierre de Brecha Digital". 
+
+```{r echo=FALSE,warning=FALSE,message=FALSE}
+tabla05<-gcSn %>%
+  filter( if(dpto!="Nacional") Departamento == chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto)) else T) %>%
+    group_by(X= if(dpto!="Nacional") UGEL else Departamento) %>%
+    summarise(IIEE=n(),
+              TOTAL_t=sum(P006,na.rm = T),
+              EST_t=sum(P008,na.rm = T),
+              DOC_t=sum(P007,na.rm = T),
+              TOTAL_p=sum(P012,na.rm = T),
+              PTOTAL_p=paste(round(TOTAL_p/TOTAL_t*100,2),"%",sep=""),
+              EST_p=sum(P014,na.rm = T),
+              PEST_p=paste(round(EST_p/EST_t*100,2),"%",sep=""),
+              DOC_p=sum(P013,na.rm = T),
+              PDOC_p=paste(round(DOC_p/DOC_t*100,2),"%",sep="")
+)
+   pie<-gcSn %>%
+     filter( if(dpto!="Nacional") Departamento == chartr("ÁÉÍÓÚ","AEIOU",toupper(dpto)) else T) %>%
+    summarise(X="TOTAL GENERAL",
+              IIEE=n(),
+              TOTAL_t=sum(P006,na.rm = T),
+              EST_t=sum(P008,na.rm = T),
+              DOC_t=sum(P007,na.rm = T),
+              TOTAL_p=sum(P012,na.rm = T),
+              PTOTAL_p=paste(round(TOTAL_p/TOTAL_t*100,2),"%",sep=""),
+              EST_p=sum(P014,na.rm = T),
+              PEST_p=paste(round(EST_p/EST_t*100,2),"%",sep=""),
+              DOC_p=sum(P013,na.rm = T),
+              PDOC_p=paste(round(DOC_p/DOC_t*100,2),"%",sep="")
+)
+
+names(tabla05)[1]<-ifelse(dpto!="Nacional","UGEL","DEPARTAMENTO")
+
+if(dpto!="Nacional"){tabla<-flextable(tabla05,cwidth = c(1.1,rep(.54,10)))}else{tabla<-flextable(tabla05,cwidth = c(1,rep(.6,10)))}
+
+
+tabla<-add_header_row(tabla,
+                      colwidths = c(1,1,3,6),
+                      values = c(ifelse(dpto!="Nacional","UGEL","DEPARTAMENTO"),"IIEE", 
+                                 "TABLETAS PROGRAMADAS","TABLETAS ACTUALIZADAS"),
+                      top = T )
+tabla<-add_footer_row(tabla,values = pie,colwidths = rep(1,11))
+tabla<-theme_vanilla(tabla)
+
+tabla <- merge_v(tabla,j = c(ifelse(dpto!="Nacional","UGEL","DEPARTAMENTO")),part = "header")
+tabla <- merge_v(tabla,j = c("IIEE"),part = "header")
+
+tabla<-set_header_labels( tabla, DEPARTAMENTO="DEPARTAMENTO",UGEL = "UGEL",IIEE="IIEE",
+                          TOTAL_t="TOTAL",EST_t="EST",DOC_t="DOC",
+                          TOTAL_p="TOTAL",PTOTAL_p="%",
+                          EST_p="EST",PEST_p="%",
+                          DOC_p="DOC",PDOC_p="%")
+
+tabla<-align(tabla,align = "center",part = "header")
+tabla<-fontsize(tabla,size = 7,part = "header")
+tabla<-fontsize(tabla,size = 7,part = "body")
+tabla<-bg(tabla,bg = "#8EA9DB",part = "header")
+tabla<-fontsize(tabla,size = 7,part = "footer")
+tabla<-bg(tabla,bg = "#8EA9DB",part = "footer")
+tabla<-align(tabla,j=c(2:11),align = "right",part = "footer")
+tabla<-align(tabla,j=c(7,9,11),align = "right",part = "body")
+
+tabla
+  
+```
+
+
+
+
+
+
+
+
+
+
+
