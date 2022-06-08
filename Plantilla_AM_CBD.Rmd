@@ -6,14 +6,20 @@ output:
   word_document:
     reference_docx: template.docx
 params:
-  my_class: "Nacional"
+  my_class: "Provincial"
+  dpto: "LIMA"
+  prov: "CHOSICA"
   
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-dpto<-params$my_class
-titulo<-toupper(dpto)
+mod<-params$my_class
+dpto<-params$dpto
+prov<-params$prov
+titulo<-dplyr::case_when(mod=="Nacional"~"NACIONAL",
+                         mod=="Departamental"~paste("DEPARTAMENTO ",dpto),
+                         mod=="Provincial"~paste("PROVINCIA ",prov,"- DEPARTAMENTO",dpto))
 Sys.setlocale(locale = "es_ES.UTF-8")
 ```
 
@@ -710,10 +716,10 @@ if(NROW(file)>1){
 }
 
 fecha3<-toupper(format(as.Date(file$fec),"%d de %B del %Y"))
-temp = tempfile(fileext = ".xlsx")
-download.file(file$drive_resource[[1]]$webContentLink, destfile=temp, mode='wb')
+#temp = tempfile(fileext = ".xlsx")
+#download.file(file$drive_resource[[1]]$webContentLink, destfile=temp, mode='wb')
 
-gcSn <- openxlsx::read.xlsx(temp, sheet =1)
+gcSn <- openxlsx::read.xlsx(file$drive_resource[[1]]$webContentLink, sheet =1)
 names(gcSn)<-c("ID","Departamento","Código.ATET","UGEL","Nombre.ATET",
                "Nombre.IIEE","Código.Modular","anexo","NIVEL",
                paste("P",str_pad(rep(1:60),width = 3,pad = "0"),sep=""))
