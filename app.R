@@ -12,7 +12,7 @@ library(googledrive)
 library(googlesheets4)
 library(tidyverse)
 
-Sys.setlocale(locale = "es_ES.UTF-8")
+Sys.setlocale("LC_ALL", "es_ES.UTF-8")
 load("./CBD.rdata")
 load("./CBDF2.rdata")
 load("./data_consolidada.rdata")
@@ -55,7 +55,6 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output,session) {
-  
   output$inputdpto<- renderUI({
     if(input$selection %in% c('Departamental','Provincial'))
       {selectInput(inputId = "Departamento", "Departamento:",choices = var_dpto(),multiple = F)}

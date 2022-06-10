@@ -6,9 +6,9 @@ output:
   word_document:
     reference_docx: template.docx
 params:
-  my_class: "Provincial"
-  dpto: "JUNIN"
-  prov: "SATIPO"
+  my_class: "Nacional"
+  dpto: "AMAZONAS"
+  prov: "CHACHAPOYAS"
   
 ---
 
@@ -20,7 +20,7 @@ prov<-params$prov
 titulo<-dplyr::case_when(mod=="Nacional"~"NACIONAL",
                          mod=="Departamental"~paste("DEPARTAMENTO ",dpto),
                          mod=="Provincial"~paste("PROVINCIA ",prov,"- DEPARTAMENTO",dpto))
-Sys.setlocale(locale = "es_ES.UTF-8")
+Sys.setlocale("LC_ALL", "es_ES.UTF-8")
 ```
 
 ###### "Decenio de la Igualdad de oportunidades para mujeres y hombres"
@@ -104,7 +104,7 @@ Se programó un total de **`r contaf1$c002d` tabletas que incluyen planes de dat
 Se programó un total de **`r contaf1$c003d` cargadores solares** que representa el **`r contaf1$p003`%** del total tabletas programadas; **`r contaf1$c003_1d` (`r contaf1$p003_1`%) destinadas a estudiantes y `r contaf1$c003_2d` (`r contaf1$p003_2`%) destinadas a docentes**.
 
 [^2]:La base de datos que implementa la focalización de la Fase I fue remitida a DITE por la Unidad de Estadística del Minedu con MEMORANDUM 00083-2020-MINEDU/SPE-OSEE.
-[^3]:Las cantidades de planes de datos está establecida según la contratación realizada para este 2022.
+[^3]:Cantidad de planes de datos cuyo servicio finalizó el 15 de diciembre del 2021.
 
 
 
@@ -637,7 +637,7 @@ if(cbdf2$p001>0){
 
 ```{r echo=FALSE,warning=FALSE,message=FALSE}
 tabla04<-dff2 %>% 
-    group_by(X=if(dpto!="Nacional") d_dreugel else d_dpto) %>%
+    group_by(X=if(mod!="Nacional") d_dreugel else d_dpto) %>%
     summarise(IIEE=sum(ifelse(f2_enie_tab>0,1,0)),
               TOTAL_t=sum(f2_enie_tab,na.rm = T),
               EST_t=sum(f2_enie_tab_est,na.rm = T),DOC_t=sum(f2_enie_tab_doc,na.rm = T),
@@ -774,7 +774,7 @@ tabla05<-dfgcSn %>%
               DOC_p=sum(P013,na.rm = T),
               PDOC_p=paste(round(DOC_p/DOC_t*100,2),"%",sep="")
 )
-   pie<-gcSn %>%
+   pie<-dfgcSn %>%
      summarise(X="TOTAL GENERAL",
               IIEE=n(),
               TOTAL_t=sum(P006,na.rm = T),
