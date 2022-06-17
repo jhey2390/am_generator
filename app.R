@@ -40,7 +40,7 @@ ui <- fluidPage(
     
     selectInput("selection", 
                 h3("Ayuda Memoria a nivel:"),
-                list("Nacional", "Departamental","Provincial")),
+                list("Nacional", "Departamental","Provincial","Distrital")),
     sidebarLayout(
       sidebarPanel(
         conditionalPanel(
@@ -48,6 +48,7 @@ ui <- fluidPage(
             h5("Se imprimirá la AM a nivel Nacional.")),
         uiOutput("inputdpto"),
         uiOutput("inputprov"),
+        uiOutput("inputdist"),
         textOutput("result"),
         downloadButton(outputId = "printAM",label = "Descargar la AM")),
       mainPanel()),
@@ -56,50 +57,77 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output,session) {
   output$inputdpto<- renderUI({
-    if(input$selection %in% c('Departamental','Provincial'))
-      {selectInput(inputId = "Departamento", "Departamento:",choices = var_dpto(),multiple = F)}
-    })
+    if(input$selection %in% c('Departamental','Provincial','Distrital'))
+      selectInput(inputId = "Departamento", "Departamento:",choices = var_dpto(),multiple = F)
+  })
   output$inputprov<- renderUI({
-    if(input$selection == 'Provincial')
-      {selectInput(inputId = "Provincia", "Provincia:",choices = var_prov(),multiple = F)}
-    })
+    if(input$selection %in% c('Provincial','Distrital'))
+      selectInput(inputId = "Provincia", "Provincia:",choices = var_prov(),multiple = F)
+  })
+  output$inputdist<- renderUI({
+    if(input$selection %in% c('Distrital'))
+    {selectInput(inputId = "Distrito", "Distrito:",choices = var_dist(),multiple = F)}
+  })
   dpto <- reactive({
-    if (is.null(input$Departamento)) sort(unique(listado$d_dpto)) else input$Departamento})
+    if (is.null(input$Departamento)) sort(unique(listado$d_dpto)) else input$Departamento
+  })
   var_dpto <- reactive({
     if(is.null(listado)){return()}
     as.list(sort(unique(listado$d_dpto)))
   })
-  
+  prov <- reactive({
+    if (is.null(input$Provincia)) sort(unique(listado$d_prov)) else input$Provincia
+  })  
   var_prov<- reactive({
-      filter(listado, d_dpto %in% as.character(dpto())) %>% 
-        pull(d_prov) %>% 
-        unique()
-    })
-    output$result <- renderText({
-      if(input$selection == "Departamental")
-        paste("Se imprimirá la AM del departamento de", input$Departamento)
-      else if(input$selection == "Provincial")
-        paste("Se imprimirá la AM de la provincia",input$Provincia,"del departamento de", input$Departamento)
-    })
-    
-    output$printAM <- downloadHandler(
-        content = function(file) {
-            params <- list(my_class = input$selection,
-                           dpto = input$Departamento,
-                           prov = input$Provincia
-                           )
-            rmarkdown::render(input = "./Plantilla_AM_CBD.Rmd", 
-                              output_file = file,
-                              output_dir = tempdir(),
-                              intermediates_dir = tempdir(),
-                              params = params,
-                              envir = new.env(parent = globalenv()),
-                              encoding="UTF-8")
-        },
-        filename = function() {paste(gsub(":","",Sys.time()),"AM_CBD",ifelse(input$selection=='Nacional',"Nacional",paste(input$Provincia,input$Departamento)),".docx")}
-    )
-    session$allowReconnect(TRUE)
+    filter(listado, d_dpto %in% as.character(dpto())) %>% 
+      pull(d_prov) %>% 
+      unique()
+  })
+  var_dist<- reactive({
+    filter(listado, d_dpto %in% as.character(dpto()),d_prov %in% as.character(prov())) %>% 
+      pull(d_dist) %>% 
+      unique()
+  })
+  output$result <- renderText({
+    if(input$selection == "Departamental")
+      paste("Se imprimirá la AM del departamento de", input$Departamento)
+    else if(input$selection == "Provincial")
+      paste("Se imprimirá la AM de la provincia",input$Provincia,"del departamento de", input$Departamento)
+    else if(input$selection == "Distrital")
+      paste("Se imprimirá la AM del distrito de ",input$Distrito,"la provincia",input$Provincia,"del departamento de", input$Departamento)
+  })
+  output$printAM <- downloadHandler(
+    content = function(file) {
+      params <- list(my_class = input$selection,
+                     dpto = input$Departamento,
+                     prov = input$Provincia,
+                     dist = input$Distrito
+      )
+      withProgress(message = 'Descargando', value = 0, {
+        Sys.sleep(0.2)
+        incProgress(1/100)
+        Sys.sleep(0.5)
+        incProgress(10/100)
+        rmarkdown::render(input = "./Plantilla_AM_CBD.Rmd", 
+                          output_file = file,
+                          output_dir = tempdir(),
+                          intermediates_dir = tempdir(),
+                          params = params,
+                          envir = new.env(parent = globalenv()),
+                          encoding="UTF-8")
+        shiny::incProgress(50/100)
+        Sys.sleep(0.5)
+        shiny::incProgress(80/100)
+        Sys.sleep(0.5)
+        shiny::incProgress(100/100)
+      })
+      
+      
+      
+    },
+    filename = function() {paste(gsub(":","",Sys.time()),"AM_CBD",ifelse(input$selection=='Nacional',"Nacional",paste(input$Distrito,input$Provincia,input$Departamento)),".docx")}
+  )
+  session$allowReconnect(TRUE)
 }
-
 # Run the application 
 shinyApp(ui = ui, server = server)
