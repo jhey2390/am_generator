@@ -1,18 +1,8 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-
 library(shiny)
 library(gargle)
 library(googledrive)
 library(googlesheets4)
 library(tidyverse)
-
-Sys.setlocale("LC_ALL", "es_ES.UTF-8")
 load("./CBD.rdata")
 load("./CBDF2.rdata")
 load("./data_consolidada.rdata")
@@ -65,7 +55,7 @@ server <- function(input, output,session) {
       selectInput(inputId = "Provincia", "Provincia:",choices = var_prov(),multiple = F)
   })
   output$inputdist<- renderUI({
-    if(input$selection %in% c('Distrital'))
+    if(input$selection == 'Distrital')
     {selectInput(inputId = "Distrito", "Distrito:",choices = var_dist(),multiple = F)}
   })
   dpto <- reactive({

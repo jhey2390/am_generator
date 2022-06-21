@@ -7,9 +7,9 @@ output:
     reference_docx: template.docx
 params:
   my_class: "Distrital"
-  dpto: "AMAZONAS"
-  prov: "BONGARA"
-  dist: "CHURUJA"
+  dpto: "HUANUCO"
+  prov: "PACHITEA"
+  dist: "UMARI"
   
 ---
 
@@ -56,41 +56,84 @@ load("./data_consolidada.rdata")
 digitos<-function(x){
   m<-format(x,big.mark = ",")
   return(m)
-  }
+}
+
+texto<-function(valor,porc,tipo){
+  oracion<-dplyr::case_when(
+    #INSTITUCIONES: 0
+    valor == "0" & tipo == 0 ~ "ninguna institución educativa",
+    valor == "1" & tipo == 0 ~ paste("**",valor," institución educativa**",sep=""),
+    tipo == 0 ~ paste("**",valor," instituciones educativas**",sep=""),
+    #TABLETAS: 1
+    valor == "0" & tipo == 1 ~ "ninguna tableta",
+    valor == "1" & tipo == 1 ~ paste("**",valor," tableta**",sep=""),
+    tipo == 1 ~ paste("**",valor," tabletas**",sep=""),
+    #PLANES: 2
+    valor == "0" & tipo == 2 ~ "ninguna tableta que incluya plan de datos",
+    valor == "1" & tipo == 2 ~ paste("**",valor," (",porc,"%) tableta que incluye plan de datos**",sep=""),
+    tipo == 2 ~ paste("**",valor," (",porc,"%) tabletas que incluye planes de datos**",sep=""),
+    #CARGADORES: 3
+    valor == "0" & tipo == 3 ~ "ningún cargador solar",
+    valor == "1" & tipo == 3 ~ paste("**",valor," (",porc,"%) cargador solar**",sep=""),
+    tipo == 3 ~ paste("**",valor," (",porc,"%) cargadores solares**",sep=""),
+    #ESTUDIANTES: 4
+    valor == "0" & tipo == 4 ~ "ninguna correspondiente a estudiantes",
+    valor == "1" & tipo == 4 ~ paste("**",valor," (",porc,"%) corresponde a un estudiante**",sep=""),
+    tipo == 4 ~ paste("**",valor," (",porc,"%) corresponden a estudiantes**",sep=""),
+    #ESTUDIANTES: 5
+    valor == "0" & tipo == 5 ~ "ninguna a docentes",
+    valor == "1" & tipo == 5 ~ paste("**",valor," (",porc,"%) a un docente**",sep=""),
+    tipo == 5 ~ paste("**",valor," (",porc,"%) a docentes**",sep=""),
+    )
+  return(oracion)
+}
+
 dff1 <-programados %>%
       filter(if(mod == "Nacional") T
              else if (mod == "Departamental") Departamento == dpto
              else if (mod == "Provincial") Departamento == dpto & Provincia == prov
              else if (mod == "Distrital") Departamento == dpto & Provincia == prov & Distritos == dist)
 contaf1 <-dff1 %>% 
-        summarise(c000=n(),
-            c000d=digitos(c000),
-            c001=sum(TABLETAS),
-            c001d=digitos(c001),
-            c001_1=sum(TABLETAS.ESTUDIANTE),
-            p001_1=round(c001_1/c001*100,2),
-            c001_1d=digitos(c001_1),
-            c001_2=sum(TABLETAS.DOCENTE),
-            p001_2=round(c001_2/c001*100,2),
-            c001_2d=digitos(c001_2),
-            c002=sum(PLANES),
-            p002=round(c002/c001*100,2),
-            c002d=digitos(c002),
-            c002_1=sum(PLANES.ESTUDIANTE),
-            p002_1=round(c002_1/c002*100,2),
-            c002_1d=digitos(c002_1),
-            c002_2=sum(PLANES.DOCENTE),
-            p002_2=round(c002_2/c002*100,2),
-            c002_2d=digitos(c002_2),
-            c003=sum(CARGADORES),
-            p003=round(c003/c001*100,2),
-            c003d=digitos(c003),
-            c003_1=sum(CARGADORES.ESTUDIANTE),
-            p003_1=round(c003_1/c003*100,2),
-            c003_1d=digitos(c003_1),
-            c003_2=sum(CARGADORES.DOCENTE),
-            p003_2=round(c003_2/c003*100,2),
-            c003_2d=digitos(c003_2))
+        summarise(
+          c000=n(),
+          c000d=digitos(c000),
+          c000T=texto(c000d,NA,0),#texto instituciones
+          c001=sum(TABLETAS),
+          c001d=digitos(c001),
+          c001T=texto(c001d,NA,1), #texto tabletas
+          c001_1=sum(TABLETAS.ESTUDIANTE),
+          p001_1=round(c001_1/c001*100,2),
+          c001_1d=digitos(c001_1),
+          c001_1T=texto(c001_1d,p001_1,4), #texto tabletas estudiantes
+          c001_2=sum(TABLETAS.DOCENTE),
+          p001_2=round(c001_2/c001*100,2),
+          c001_2d=digitos(c001_2),
+          c001_2T=texto(c001_2d,p001_2,5), #texto tabletas docentes
+          c002=sum(PLANES),
+          p002=round(c002/c001*100,2),
+          c002d=digitos(c002),
+          c002T=texto(c002d,p002,2), #texto planes de datos
+          c002_1=sum(PLANES.ESTUDIANTE),
+          p002_1=round(c002_1/c002*100,2),
+          c002_1d=digitos(c002_1),
+          c002_1T=texto(c002_1d,p002_1,4), #texto planes de datos estudiantes
+          c002_2=sum(PLANES.DOCENTE),
+          p002_2=round(c002_2/c002*100,2),
+          c002_2d=digitos(c002_2),
+          c002_2T=texto(c002_2d,p002_2,5), #texto planes de datos docentes
+          c003=sum(CARGADORES),
+          p003=round(c003/c001*100,2),
+          c003d=digitos(c003),
+          c003T=texto(c003d,p003,3), #texto cargadores solares
+          c003_1=sum(CARGADORES.ESTUDIANTE),
+          p003_1=round(c003_1/c003*100,2),
+          c003_1d=digitos(c003_1),
+          c003_1T=texto(c003_1d,p003_1,4), #texto cargadores solares estudiantes
+          c003_2=sum(CARGADORES.DOCENTE),
+          p003_2=round(c003_2/c003*100,2),
+          c003_2d=digitos(c003_2),
+          c003_2T=texto(c003_2d,p003_2,5), #texto cargadores solares docentes
+          )
 
 ubicacion<-
   case_when(mod == "Nacional"~"a nivel **Nacional**",
@@ -99,11 +142,11 @@ ubicacion<-
             mod == "Distrital"~paste("en el distrito de **",dist,"** de la provincia **",prov,"** del departamento de **",dpto,"**",sep=""))
 
 tabletasP2<-ifelse(contaf1$c001>0,
-                   paste("Como resultado de la focalización[^2] de la estrategia de **\"Cierre de Brecha Digital\"** en la **Fase I**, ",ubicacion," se tiene programado un total de **",contaf1$c001d," tabletas**, **",contaf1$c001_1d," (",contaf1$p001_1,"%) son destinadas a estudiantes y ",contaf1$c001_2d," (",contaf1$p001_2,"%) destinadas a docentes**. Atendiendo a **",contaf1$c000d,"** instituciones educativas.",sep=""),
+                   paste("Como resultado de la focalización[^2] de la estrategia de **\"Cierre de Brecha Digital\" en la Fase I**, ",ubicacion," se tiene programado ",contaf1$c001T,", de las cuales, ",contaf1$c001_1T," y ",contaf1$c001_2T,". Atendiendo a ",contaf1$c000T,".",sep=""),
                    paste("Como resultado de la focalización[^2] de la estrategia de **\"Cierre de Brecha Digital\" en la Fase I**, ",ubicacion," no se tiene ningún dispositivo electrónico programado.",sep=""))
 
 planesP2<-ifelse(contaf1$c002>0,
-                 paste("Se programó un total de **",contaf1$c002d," tabletas que incluyen planes de datos**[^3], que representa el **",contaf1$p002,"%** del total tabletas programadas; de las cuales **", contaf1$c002_1d," (",contaf1$p002_1,"%) son destinadas a estudiantes y ",contaf1$c002_2d," (", contaf1$p002_2,"%) destinadas a docentes**.",sep=""),
+                 paste("Se programó ",contaf1$c002T,"[^3], que representa el **",contaf1$p002,"%** del total tabletas programadas, de los cuales ", contaf1$c002_1T," y ",contaf1$c002_2T,".",sep=""),
                  "") 
 
 subindiceP2<-ifelse(contaf1$c002>0,
@@ -111,7 +154,7 @@ subindiceP2<-ifelse(contaf1$c002>0,
                     "")
 
 cargadoresP2<-ifelse(contaf1$c003>0,
-                     paste("Se programó un total de **",contaf1$c003d," cargadores solares** que representa el **",contaf1$p003,"%** del total tabletas programadas; **",contaf1$c003_1d," (",contaf1$p003_1,"%) destinadas a estudiantes y ",contaf1$c003_2d," (", contaf1$p003_2,"%) destinadas a docentes**.",sep=""),
+                     paste("Se programó ",contaf1$c003T," que representa el **",contaf1$p003,"%** del total tabletas programadas, de los cuales, ",contaf1$c003_1T," y ",contaf1$c003_2T,".",sep=""),
                      "")
 
 ```
@@ -196,43 +239,54 @@ contaf2 <-
   f2 %>% 
   summarise(c000=n(),
             c000d=digitos(c000),
+            c000T=texto(c000d,NA,0),#texto instituciones
             c001=sum(F2_Tabletas,na.rm=T),
             c001d=digitos(c001),
+            c001T=texto(c001d,NA,1), #texto tabletas
             c001_1=sum(F2_Estudiantes,na.rm=T),
             p001_1=round(c001_1/c001*100,2),
             c001_1d=digitos(c001_1),
+            c001_1T=texto(c001_1d,p001_1,4), #texto tabletas estudiantes
             c001_2=sum(F2_Docentes,na.rm=T),
             p001_2=round(c001_2/c001*100,2),
             c001_2d=digitos(c001_2),
+            c001_2T=texto(c001_2d,p001_2,5), #texto tabletas docentes
             c002=sum(F2_Internet,na.rm=T),
             p002=round(c002/c001*100,2),
             c002d=digitos(c002),
+            c002T=texto(c002d,p002,2), #texto planes de datos
             c002_1=sum(F2_Estudiantes_Internet,na.rm=T),
             p002_1=round(c002_1/c002*100,2),
             c002_1d=digitos(c002_1),
+            c002_1T=texto(c002_1d,p002_1,4), #texto planes de datos estudiantes
             c002_2=sum(F2_Docentes_Internet,na.rm=T),
             p002_2=round(c002_2/c002*100,2),
             c002_2d=digitos(c002_2),
+            c002_2T=texto(c002_2d,p002_2,5), #texto planes de datos docentes
             c003=sum(F2_Ncargador,na.rm=T),
             p003=round(c003/c001*100,2),
             c003d=digitos(c003),
+            c003T=texto(c003d,p003,3), #texto cargadores solares
             c003_1=sum(F2_Estudiantes_Ncargador,na.rm=T),
             p003_1=round(c003_1/c003*100,2),
             c003_1d=digitos(c003_1),
+            c003_1T=texto(c003_1d,p003_1,4), #texto cargadores solares estudiantes
             c003_2=sum(F2_Docentes_Ncargador,na.rm=T),
             p003_2=round(c003_2/c003*100,2),
-            c003_2d=digitos(c003_2))
+            c003_2d=digitos(c003_2),
+            c003_2T=texto(c003_2d,p003_2,5), #texto cargadores solares docentes
+            )
 
 tabletasP4<-ifelse(contaf2$c001>0,
-                   paste("Como resultado de la focalización de la estrategia de **\"Cierre de Brecha Digital\", en la Fase II[^4]**, ",ubicacion," se programó la entrega de un total de **",contaf2$c001d," tabletas, ",contaf2$c001_1d," (",contaf2$p001_1,"%) destinadas a estudiantes y ",contaf2$c001_2d," (",contaf2$p001_2,"%) destinadas a docentes**. Atendiendo a ",contaf2$c000d," instituciones educativas.",sep=""),
+                   paste("Como resultado de la focalización de la estrategia de **\"Cierre de Brecha Digital\", en la Fase II[^4]**, ",ubicacion," se programó la entrega de ",contaf2$c001T,", de las cuales, ",contaf2$c001_1T," y ",contaf2$c001_2T,". Atendiendo a ",contaf2$c000T,".",sep=""),
                    paste("Como resultado de la focalización de la estrategia de **\"Cierre de Brecha Digital\", en la Fase II[^4]**, ",ubicacion," no se tiene ningún dispositivo electrónico programado.",sep=""))
 
 planesP4<-ifelse(contaf2$c002>0,
-                 paste("Se programó la entrega de un total de **",contaf2$c002d," tabletas que incluyen planes de datos** que representa el **",contaf2$p002,"%** del total tabletas programadas para la Fase II; **",contaf2$c002_1d," (",contaf2$p002_1,"%) destinadas a estudiantes y ",contaf2$c002_2d," (",contaf2$p002_2,"%) destinadas a docentes**.",sep=""),
+                 paste("Se programó la entrega de ",contaf2$c002T," que representa el **",contaf2$p002,"%** del total tabletas programadas para la Fase II, de los cuales, ",contaf2$c002_1T," y ",contaf2$c002_2T,".",sep=""),
                  "")
 
 cargadoresP4<-ifelse(contaf2$c003>0,
-                     paste("Se programó la entrega un total de **",contaf2$c003d," cargadores solares** que representa el **",contaf2$p003,"%** del total tabletas programadas para la Fase II; **",contaf2$c003_1d," (",contaf2$p003_1,"%) destinadas a estudiantes y ",contaf2$c003_2d," (",contaf2$p003_2,"%) destinadas a docentes**.",sep=""),
+                     paste("Se programó la entrega de ",contaf2$c003T," que representa el **",contaf2$p003,"%** del total tabletas programadas para la Fase II, de los cuales, ",contaf2$c003_1T," y ",contaf2$c003_2T,".",sep=""),
                      "")
 
 
@@ -337,86 +391,53 @@ entregf1 <-
   summarise(c000=sum(ifelse(EN.IIEE>0,1,0)),
             c000d=digitos(c000),
             c001=sum(EN.IIEE),
+            c000T=texto(c000d,NA,0),#texto instituciones
             p001=round(c001/contaf1$c001*100,2),
             c001d=digitos(c001),
+            c001T=texto(c001d,NA,1), #texto tabletas
             c001_1=sum(EN.IIEE.ESTUDIANTE),
             p001_1=round(c001_1/contaf1$c001*100,2),
             c001_1d=digitos(c001_1),
+            c001_1T=texto(c001_1d,p001_1,4), #texto tabletas estudiantes
             c001_2=sum(EN.IIEE.DOCENTE),
             p001_2=round(c001_2/c001*100,2),
             c001_2d=digitos(c001_2),
+            c001_2T=texto(c001_2d,p001_2,5), #texto tabletas docentes
             c002=sum(EN.IIEE.PLANES),
             p002=100,#PARACAMBIAR
             c002d=digitos(c002),
+            c002T=texto(c002d,p002,2), #texto planes de datos
             c002_1=sum(EN.IIEE.PLANES.ESTUDIANTE),
             p002_1=round(c002_1/c002*100,2),
             c002_1d=digitos(c002_1),
+            c002_1T=texto(c002_1d,p002_1,4), #texto planes de datos estudiantes
             c002_2=sum(EN.IIEE.PLANES.DOCENTE),
             p002_2=round(c002_2/c002*100,2),
             c002_2d=digitos(c002_2),
+            c002_2T=texto(c002_2d,p002_2,5), #texto planes de datos docentes
             c003=sum(EN.IIEE.CARGADORES),
             p003=round(c003/contaf1$c003*100,2),
             c003d=digitos(c003),
+            c003T=texto(c003d,p003,3), #texto cargadores solares
             c003_1=sum(EN.IIEE.CARGADORES.ESTUDIANTE),
             p003_1=round(c003_1/c003*100,2),
             c003_1d=digitos(c003_1),
+            c003_1T=texto(c003_1d,p003_1,4), #texto cargadores solares estudiantes
             c003_2=sum(EN.IIEE.CARGADORES.DOCENTE),
             p003_2=round(c003_2/c003*100,2),
-            c003_2d=digitos(c003_2))
+            c003_2d=digitos(c003_2),
+            c003_2T=texto(c003_2d,p003_2,5), #texto cargadores solares docentes
+            )
 
 
 if(entregf1$c001>0){
-  entregasP5<-paste("A la fecha se han **entregado ",entregf1$c001d," (",entregf1$p001,"%) tabletas** de la Fase I; de las cuales corresponden a **",entregf1$c001_1d,"** estudiantes y **",entregf1$c001_2d,"** docentes. ",ifelse(entregf1$c002>0,paste("A su vez, un total de **",entregf1$c002d," (",entregf1$p002,"%) tabletas incluyen planes de datos**; de las cuales corresponden **",entregf1$c002_1d," a estudiantes y ",entregf1$c002_2d," a docentes**. ",sep=""),""),ifelse(entregf1$c003>0,paste("Y un total de **",entregf1$c003d," (",entregf1$p003,"%) cargadores solares**, que corresponden a **",entregf1$c003_1d," estudiantes y ",entregf1$c003_2d," docentes**.",sep=""),"")," Atendiendo a **",entregf1$c000d,"** instituciones educativas.",sep="")
-  pendienteP5<-"Así mismo, a la fecha, ninguna tableta ni sus complementos queda pendiente de entrega."
+  entregasP5<-paste("A la fecha se ha entregado ",entregf1$c001T," de la Fase I, que representa el **",entregf1$p001,"%** del total de tabletas; de las cuales, ",entregf1$c001_1T," y ",entregf1$c001_2T,". ",ifelse(entregf1$c002>0,paste("A su vez, ",entregf1$c002T,", de los cuales, ",entregf1$c002_1T," y ",entregf1$c002_2T,". ",sep=""),""),ifelse(entregf1$c003>0,paste("Y ",entregf1$c003T,", de los cuales, ",entregf1$c003_1T," y ",entregf1$c003_2T,".",sep=""),"")," Atendiendo a ",entregf1$c000T,".",sep="")
+  pendienteP5<-"Así mismo, a la fecha, ninguna tableta ni sus complementos queda pendiente de entrega en la Fase I."
 }else{
   entregasP5<-tabletasP2
   pendienteP5<-""
 }
 
-pendientef1 <- 
-  dff1 %>%
-    summarise(c001=sum(EN.RUTA),
-             p001=round(c001/contaf1$c001*100,2),
-             c001d=digitos(c001),
-             c001_1=sum(EN.RUTA.ESTUDIANTE),
-             p001_1=round(c001_1/contaf1$c001_1*100,2),
-             c001_1d=digitos(c001_1),
-             c001_2=sum(EN.RUTA.DOCENTE),
-             p001_2=round(c001_2/contaf1$c001_2*100,2),
-             c001_2d=digitos(c001_2),
-             c002=sum(EN.RUTA.PLANES),
-             p002=round(c002/contaf1$c002*100,2),
-             c002d=digitos(c002),
-             c002_1=sum(EN.RUTA.PLANES.ESTUDIANTE),
-             p002_1=round(c002_1/contaf1$c002_1*100,2),
-             c002_1d=digitos(c002_1),
-             c002_2=sum(EN.RUTA.PLANES.DOCENTE),
-             p002_2=round(c002_2/contaf1$c002_2*100,2),
-             c002_2d=digitos(c002_2),
-             c003=sum(EN.RUTA.CARGADORES),
-             p003=round(c003/contaf1$c003*100,2),
-             c003d=digitos(c003),
-             c003_1=sum(EN.RUTA.CARGADORES.ESTUDIANTE),
-             p003_1=round(c003_1/contaf1$c003_1*100,2),
-             c003_1d=digitos(c003_1),
-             c003_2=sum(EN.RUTA.CARGADORES.DOCENTE),
-             p003_2=round(c003_2/contaf1$c003_2*100,2),
-             c003_2d=digitos(c003_2))
-
-#if(pendientef1$c001>0)
-#{
-#  if(pendientef1$c003>0){
-#    pendiente<-paste("Asimismo, se encuentran en ruta **",pendientef1$c001d," (",pendientef1$p001,"%) tabletas**; de las cuales #**",pendientef1$c001_1d,"** corresponden a estudiantes y **",pendientef1$c001_2d,"** a docentes; un total de #**",pendientef1$c002d," (",pendientef1$p002,"%) incluyen planes de datos**, de las cuales corresponden #**",pendientef1$c002_1d,"** a estudiantes y **",pendientef1$c002_2d,"** a docentes; y un total de **",pendientef1$c003d," #(",pendientef1$p003,"%) cargadores**, de los cuales corresponden **",pendientef1$c003_1d,"** a estudiantes y #**",pendientef1$c003_2d,"** a docentes.",sep="")
-#  }else{
-#    pendiente<-paste("Asimismo, se encuentran en ruta **",pendientef1$c001d," (",pendientef1$p001,"%) tabletas**; de las cuales #**",pendientef1$c001_1d,"** corresponden a estudiantes y **",pendientef1$c001_2d,"** a docentes; un total de #**",pendientef1$c002d," (",pendientef1$p002,"%) incluyen planes de datos**, de los cuales corresponden #**",pendientef1$c002_1d,"** a estudiantes y **",pendientef1$c002_2d,"** a docentes.",sep="")
-#  }
-#}else{
-#  if(pendientef1$c003>0){
-#    pendiente<-paste("Así mismo, a la fecha, ninguna tableta queda pendiente de entrega, sin embargo, aún queda pendiente la #entrega de **",pendientef1$c003d," (",pendientef1$p003,"%)"," cargadores solares**. ",sep="")
-#  }else{
-    
-#  }
-#}
 
 ```
 
@@ -516,134 +537,174 @@ cbdf2 <-
   dff2 %>% 
   summarise(d000=sum(ifelse(f2_desp_tab>0,1,0),na.rm = T),
             d000d=digitos(d000),
+            d000T=texto(d000d,NA,0),#texto instituciones
             d001=sum(f2_desp_tab),
             dp001=round(d001/sum(f2_tab,na.rm = T)*100,2),
             d001d=digitos(d001),
+            d001T=texto(d001d,NA,1), #texto tabletas
             d001_1=sum(f2_desp_tab_est),
             dp001_1=round(d001_1/sum(f2_tab,na.rm = T)*100,2),
             d001_1d=digitos(d001_1),
+            d001_1T=texto(d001_1d,dp001_1,4), #texto tabletas estudiantes
             d001_2=sum(f2_desp_tab_doc),
             dp001_2=round(d001_2/d001*100,2),
             d001_2d=digitos(d001_2),
+            d001_2T=texto(d001_2d,dp001_2,5), #texto tabletas docentes
             d002=sum(f2_desp_inter),
             dp002=round(d002/sum(f2_inter,na.rm = T)*100,2),
             d002d=digitos(d002),
+            d002T=texto(d002d,dp002,2), #texto planes de datos
             d002_1=sum(f2_desp_inter_est),
             dp002_1=round(d002_1/d002*100,2),
             d002_1d=digitos(d002_1),
+            d002_1T=texto(d002_1d,dp002_1,4), #texto planes de datos estudiantes
             d002_2=sum(f2_desp_inter_doc),
             dp002_2=round(d002_2/d002*100,2),
             d002_2d=digitos(d002_2),
+            d002_2T=texto(d002_2d,dp002_2,5), #texto planes de datos docentes
             d003=sum(f2_desp_carg),
             dp003=round(d003/sum(f2_carg,na.rm = T)*100,2),
             d003d=digitos(d003),
+            d003T=texto(d003d,dp003,3), #texto cargadores solares
             d003_1=sum(f2_desp_carg_est),
             dp003_1=round(d003_1/d003*100,2),
             d003_1d=digitos(d003_1),
+            d003_1T=texto(d003_1d,dp003_1,4), #texto cargadores solares estudiantes
             d003_2=sum(f2_desp_carg_doc),
             dp003_2=round(d003_2/d003*100,2),
             d003_2d=digitos(d003_2),
+            d003_2T=texto(d003_2d,dp003_2,5), #texto cargadores solares docentes
             
-            i000=sum(ifelse(f2_enie_tab>0,1,0),na.rm = T),
+            i000=sum(ifelse(f2_enie_tab>0,1,0),na.rm = T),  
             i000d=digitos(i000),
+            i000T=texto(i000d,NA,0),#texto instituciones
             i001=sum(f2_enie_tab),
             ip001=round(i001/sum(f2_tab,na.rm = T)*100,2),
             i001d=digitos(i001),
+            i001T=texto(i001d,NA,1), #texto tabletas
             i001_1=sum(f2_enie_tab_est),
             ip001_1=round(i001_1/sum(f2_tab,na.rm = T)*100,2),
             i001_1d=digitos(i001_1),
+            i001_1T=texto(i001_1d,ip001_1,4), #texto tabletas estudiantes
             i001_2=sum(f2_enie_tab_doc),
             ip001_2=round(i001_2/i001*100,2),
             i001_2d=digitos(i001_2),
+            i001_2T=texto(i001_2d,ip001_2,5), #texto tabletas docentes
             i002=sum(f2_enie_inter),
             ip002=round(i002/sum(f2_inter,na.rm = T)*100,2),
             i002d=digitos(i002),
+            i002T=texto(i002d,ip002,2), #texto planes de datos
             i002_1=sum(f2_enie_inter_est),
             ip002_1=round(i002_1/i002*100,2),
             i002_1d=digitos(i002_1),
+            i002_1T=texto(i002_1d,ip002_1,4), #texto planes de datos estudiantes
             i002_2=sum(f2_enie_inter_doc),
             ip002_2=round(i002_2/i002*100,2),
             i002_2d=digitos(i002_2),
+            i002_2T=texto(i002_2d,ip002_2,5), #texto planes de datos docentes
             i003=sum(f2_enie_carg),
             ip003=round(i003/sum(f2_carg,na.rm = T)*100,2),
             i003d=digitos(i003),
+            i003T=texto(i003d,ip003,3), #texto cargadores solares
             i003_1=sum(f2_enie_carg_est),
             ip003_1=round(i003_1/i003*100,2),
             i003_1d=digitos(i003_1),
+            i003_1T=texto(i003_1d,ip003_1,4), #texto cargador solares estudiantes
             i003_2=sum(f2_enie_carg_doc),
             ip003_2=round(i003_2/i003*100,2),
             i003_2d=digitos(i003_2),
+            i003_2T=texto(i003_2d,ip003_2,5), #texto cargador solares docentes
             
             r000=sum(ifelse(f2_enrut_tab>0,1,0),na.rm = T),
             r000d=digitos(r000),
+            r000T=texto(r000d,NA,0),#texto instituciones
             r001=sum(f2_enrut_tab),
             rp001=round(r001/sum(f2_tab,na.rm = T)*100,2),
             r001d=digitos(r001),
+            r001T=texto(r001d,NA,1), #texto tabletas
             r001_1=sum(f2_enrut_tab_est),
             rp001_1=round(r001_1/sum(f2_tab,na.rm = T)*100,2),
             r001_1d=digitos(r001_1),
+            r001_1T=texto(r001_1d,rp001_1,4), #texto tabletas estudiantes
             r001_2=sum(f2_enrut_tab_doc),
             rp001_2=round(r001_2/r001*100,2),
             r001_2d=digitos(r001_2),
+            r001_2T=texto(r001_2d,rp001_2,5), #texto tabletas docentes
             r002=sum(f2_enrut_inter),
             rp002=round(r002/sum(f2_inter,na.rm = T)*100,2),
             r002d=digitos(r002),
+            r002T=texto(r002d,rp002,2), #texto planes de datos
             r002_1=sum(f2_enrut_inter_est),
             rp002_1=round(r002_1/r002*100,2),
             r002_1d=digitos(r002_1),
+            r002_1T=texto(r002_1d,rp002_1,4), #texto planes de datos estudiantes
             r002_2=sum(f2_enrut_inter_doc),
             rp002_2=round(r002_2/r002*100,2),
             r002_2d=digitos(r002_2),
+            r002_2T=texto(r002_2d,rp002_2,5), #texto planes de datos docentes
             r003=sum(f2_enrut_carg),
             rp003=round(r003/sum(f2_carg,na.rm = T)*100,2),
             r003d=digitos(r003),
+            r003T=texto(r003d,rp003,3), #texto cargadores solares
             r003_1=sum(f2_enrut_carg_est),
             rp003_1=round(r003_1/r003*100,2),
             r003_1d=digitos(r003_1),
+            r003_1T=texto(r003_1d,rp003_1,4), #texto cargador solares estudiantes
             r003_2=sum(f2_enrut_carg_doc),
             rp003_2=round(r003_2/r003*100,2),
             r003_2d=digitos(r003_2),
+            r003_2T=texto(r003_2d,rp003_2,5), #texto cargador solares docentes
             
             p000=sum(ifelse(f2_pend_tab>0,1,0),na.rm = T),
             p000d=digitos(p000),
+            p000T=texto(p000d,NA,0),#texto instituciones
             p001=sum(f2_pend_tab),
             pp001=round(p001/sum(f2_tab,na.rm = T)*100,2),
             p001d=digitos(p001),
+            p001T=texto(p001d,NA,1), #texto tabletas
             p001_1=sum(f2_pend_tab_est),
             pp001_1=round(p001_1/sum(f2_tab,na.rm = T)*100,2),
             p001_1d=digitos(p001_1),
+            p001_1T=texto(p001_1d,pp001_1,4), #texto tabletas estudiantes
             p001_2=sum(f2_pend_tab_doc),
             pp001_2=round(p001_2/p001*100,2),
             p001_2d=digitos(p001_2),
+            p001_2T=texto(p001_2d,pp001_2,5), #texto tabletas docentes
             p002=sum(f2_pend_inter),
             pp002=round(p002/sum(f2_inter,na.rm = T)*100,2),
             p002d=digitos(p002),
+            p002T=texto(p002d,pp002,2), #texto planes de datos
             p002_1=sum(f2_pend_inter_est),
             pp002_1=round(p002_1/p002*100,2),
             p002_1d=digitos(p002_1),
+            p002_1T=texto(p002_1d,pp002_1,4), #texto planes de datos estudiantes
             p002_2=sum(f2_pend_inter_doc),
             pp002_2=round(p002_2/p002*100,2),
             p002_2d=digitos(p002_2),
+            p002_2T=texto(p002_2d,pp002_2,5), #texto planes de datos docentes
             p003=sum(f2_pend_carg),
             pp003=round(p003/sum(f2_carg,na.rm = T)*100,2),
             p003d=digitos(p003),
+            p003T=texto(p003d,pp003,3), #texto cargadores solares
             p003_1=sum(f2_pend_carg_est),
             pp003_1=round(p003_1/p003*100,2),
             p003_1d=digitos(p003_1),
+            p003_1T=texto(p003_1d,pp003_1,4), #texto cargador solares estudiantes
             p003_2=sum(f2_pend_carg_doc),
             pp003_2=round(p003_2/p003*100,2),
-            p003_2d=digitos(p003_2)
+            p003_2d=digitos(p003_2),
+            p003_2T=texto(p003_2d,pp003_2,5), #texto cargador solares docentes
             )
 
 #ENTREGA F2
 if(cbdf2$i001>0){
-  entregasP6<-paste("A la fecha se han **entregado ",cbdf2$i001d," (",cbdf2$ip001,"%) tabletas** de la Fase II; de las cuales corresponden a **",cbdf2$i001_1d,"** estudiantes y **", cbdf2$i001_2d,"** docentes.",ifelse(cbdf2$i002>0,paste(" A su vez, un total de **",cbdf2$i002d," (",cbdf2$ip002,"%) tabletas incluyen planes de datos**; de las cuales corresponden **",cbdf2$i002_1d,"** a estudiantes y **",cbdf2$i002_2d,"** a docentes.",sep=""),""),ifelse(cbdf2$i003>0,paste(" Y un total de **",cbdf2$i003d," (",cbdf2$ip003,"%) cargadores solares**, corresponden a **",cbdf2$i003_1d,"** estudiantes y **",cbdf2$i003_2d,"** docentes.",sep=""),""),paste(" Atendiendo a **",cbdf2$i000d," instituciones educativas**."),sep="")
+  entregasP6<-paste("A la fecha se han **entregado** ",cbdf2$i001T," de la Fase II, que representa el ",cbdf2$ip001,"% del total de tabletas; de las cuales, ",cbdf2$i001_1T," y ", cbdf2$i001_2T,".",ifelse(cbdf2$i002>0,paste(" A su vez, ",cbdf2$i002T,", de los cuales,",cbdf2$i002_1T," y ",cbdf2$i002_2T,".",sep=""),""),ifelse(cbdf2$i003>0,paste(" Y ",cbdf2$i003T,", de los cuales, ",cbdf2$i003_1T," y ",cbdf2$i003_2T,".",sep=""),""),paste(" Atendiendo a ",cbdf2$i000T,"."),sep="")
   }else{
-  entregasP6 <- paste("A la fecha de la actualización no se ha contabilizado la entrega, en las instituciones educativas focalizadas de la Fase II,", ifelse(cbdf2$i003>0,paste(" de ninguna tableta. ",ifelse(cbdf2$i003>0,paste(" Mientras que a la fecha se han entregado **",cbdf2$i003d," (",cbdf2$ip003,"%) cargadores solares**, corresponden a **",cbdf2$i003_1d,"** estudiantes y **",cbdf2$i003_2d,"** docentes.",sep=""),""),sep="")," de ningún dispositivo electrónico, bien sea tabletas o cargadores solares."),sep="")}
+  entregasP6 <- paste("A la fecha de la actualización no se ha contabilizado la entrega, en las instituciones educativas focalizadas de la Fase II,", ifelse(cbdf2$i003>0,paste(" de ninguna tableta. ",ifelse(cbdf2$i003>0,paste(" Mientras que a la fecha se han entregado ",cbdf2$i003T,", de los cuales,",cbdf2$i003_1T," y ",cbdf2$i003_2T,".",sep=""),""),sep="")," de ningún dispositivo electrónico, bien sea tabletas o cargadores solares."),sep="")}
 
 #DESPACHO F2
 if(cbdf2$d001>0){
-  despachosP6<-paste("Por otro lado, se han venido despachando un total de **",cbdf2$d001d," (",cbdf2$dp001,"%) tabletas**, de las cuales **",cbdf2$d001_1d,"** corresponden a estudiantes y **",cbdf2$d001_2d,"** a docentes.",ifelse(cbdf2$d002>0,paste(" Un total de **",cbdf2$d002d," (",cbdf2$dp002,"%) tabletas que incluyen planes de datos**, de las cuales corresponden **",cbdf2$d002_1d,"** a estudiantes y **",cbdf2$d002_2d,"** a docentes.",sep=""),""),ifelse(cbdf2$d003>0,paste(" Y un total de **",cbdf2$d003d," (",cbdf2$dp003,"%) cargadores solares**, de los cuales corresponden **",cbdf2$d003_1d,"** a estudiantes y **",cbdf2$d003_2d,"** a docentes.",sep=""),""),sep="")
+  despachosP6<-paste("Por otro lado, se ha despachado ",cbdf2$d001T,", de las cuales, ",cbdf2$d001_1T," y ",cbdf2$d001_2T,".",ifelse(cbdf2$d002>0,paste(" Un total de ",cbdf2$d002T,", de los cuales, ",cbdf2$d002_1T," y ",cbdf2$d002_2T,".",sep=""),""),ifelse(cbdf2$d003>0,paste(" Y un total de ",cbdf2$d003T,", de los cuales, ",cbdf2$d003_1T," y ",cbdf2$d003_2T,".",sep=""),""),sep="")
 }else{
   despachosP6<-""
 }
@@ -651,7 +712,7 @@ if(cbdf2$d001>0){
 #PENDIENTE F2
 
 if(cbdf2$p001>0){
-  pendientesP6<-paste("Quedando pendiente **",cbdf2$p001d," (",cbdf2$pp001,"%) tabletas** (**",cbdf2$p001_1d,"** a estudiantes y **",cbdf2$p001_2d,"** a docentes); **",cbdf2$p002d," (",cbdf2$pp002,"%) planes de datos** (**",cbdf2$p002_1d,"** a estudiantes y **",cbdf2$p002_2d,"** a docentes); y **",cbdf2$p003d," (",cbdf2$pp003,"%) cargadores solares** (**",cbdf2$p003_1d,"** a estudiantes y **",cbdf2$p003_2d,"** a docentes).",sep="")
+  pendientesP6<-paste("Quedando pendiente ",cbdf2$p001T," (",cbdf2$p001_1T," y ",cbdf2$p001_2T,"), ",cbdf2$p002T," (",cbdf2$p002_1T," y ",cbdf2$p002_2T,"), y ",cbdf2$p003T," (",cbdf2$p003_1T," y ",cbdf2$p003_2T,").",sep="")
 }else{
   pendientesP6<-""
 }
@@ -725,9 +786,7 @@ library(googlesheets4)
 jp_folder <- "https://drive.google.com/drive/folders/1UjvV0CPbu3kQKLanWTDxRUoNdYsUehSL"
 #googledrive::drive_auth()
 googledrive::drive_auth(path = "your-app-folder-name/.secrets/calcium-chalice-291219-c0edbd3ab245.json")
-
 folder_id <- drive_get(as_id(jp_folder))
-
 files <- drive_ls(folder_id)
 files<-files %>% 
   mutate(fec=trimws(gsub("[a-zA-Z.-]","",name)),
@@ -747,7 +806,7 @@ if(NROW(file)>1){
 
 fecha3<-toupper(format(as.Date(file$fec),"%d de %B del %Y"))
 fecha3<- str_replace(fecha3,months$en,months$es)[!str_replace(fecha3,months$en,months$es)==fecha3]
-fecha3 <- ifelse(is_empty(fechaf2),toupper(format(as.Date(file$fec),"%d de %B del %Y")),fechaf2)
+fecha3 <- ifelse(is_empty(fecha3),toupper(format(as.Date(file$fec),"%d de %B del %Y")),fecha3)
   
 gcSn <- openxlsx::read.xlsx(file$drive_resource[[1]]$webContentLink, sheet =1)
 names(gcSn)<-c("ID","Departamento","Código.ATET","UGEL","Nombre.ATET",
@@ -760,32 +819,41 @@ dfgcSn <- gcSn %>%
 tgcSn <- dfgcSn %>%
   summarise(p000=n(),
             p000d=digitos(p000),
+            p000T=texto(p000d,NA,0),#texto instituciones
             p000_1=sum(ifelse(NIVEL=="Primaria",1,0),na.rm = T),
             p000_1d=digitos(p000_1),
+            p000_1T=texto(p000_1d,NA,0),#texto instituciones
             p000_2=sum(ifelse(NIVEL=="Secundaria",1,0),na.rm = T),
             p000_2d=digitos(p000_2),
+            p000_2T=texto(p000_2d,NA,0),#texto instituciones
             p001=sum(P006,na.rm = T),
             p001d=digitos(p001),
+            p001T=texto(p001d,NA,1), #texto tabletas
             p001_1=sum(P008,na.rm = T),
-            p001_1d=digitos(p001_1),
+            p001_1d=digitos(p001_1),#estudiantes
             pp001_1=round(p001_1/p001*100,2),
+            p001_1T=texto(p001_1d,pp001_1,4), #texto tabletas estudiantes
             p001_2=sum(P007,na.rm = T),
             p001_2d=digitos(p001_2),
             pp001_2=round(p001_2/p001*100,2),
+            p001_2T=texto(p001_2d,pp001_2,5), #texto tabletas docentes
             
             a001=sum(P012,na.rm = T),
             a001d=digitos(a001),
             ap001=round(a001/p001*100,2),
+            a001T=texto(a001d,ap001,1), #texto tabletas
             a001_1=sum(P014,na.rm = T),
             a001_1d=digitos(a001_1),
             ap001_1=round(a001_1/p001_1*100,2),
+            a001_1T=texto(a001_1d,ap001_1,4), #texto tabletas estudiantes
             a001_2=sum(P013,na.rm = T),
             a001_2d=digitos(a001_2),
-            ap001_2=round(a001_2/p001_2*100,2)
+            ap001_2=round(a001_2/p001_2*100,2),
+            a001_2T=texto(a001_2d,ap001_2,5), #texto tabletas docentes
             )
 
 actualizacionP7<-ifelse(tgcSn$p001>0,
-                        paste("A la fecha ",ubicacion," se ha programado la actualización de un total de **",tgcSn$p001d, " tabletas**[^6] (**",tgcSn$p001_1d,"** de estudiantes y **",tgcSn$p001_2d,"** de docentes) distribuidas en **",tgcSn$p000d," instituciones educativas** (**",tgcSn$p000_1d,"** de primaria y **",tgcSn$p000_2d,"** de secundaria); habiéndose actualizado un total de **",tgcSn$a001d," (",tgcSn$ap001,"%) tabletas**, **",tgcSn$a001_1d," (",tgcSn$ap001_1,"%)** de estudiantes y **",tgcSn$a001_2d," (",tgcSn$ap001_2,"%)** de docentes.",sep=""),
+                        paste("A la fecha, ",ubicacion," se ha programado la actualización de ",tgcSn$p001T,"[^6], de las cuales, ",tgcSn$p001_1T," y ",tgcSn$p001_2T,", distribuidas en ",tgcSn$p000T," (",tgcSn$p000_1T," **de nivel primaria** y ",gsub(" instituci[ó|o]n[a-z]{,2} educativ[a-z]{1,2}\\*\\*$","**",tgcSn$p000_2T)," **de secundaria**); habiéndose actualizado ",tgcSn$a001T," que representa el **",tgcSn$ap001,"%** de lo programado, de las cuales, ",tgcSn$a001_1T," y ",tgcSn$a001_2T,".",sep=""),
                         paste("A la fecha no se ha programado la actualización de ninguna tableta[^6] ",ubicacion,".",sep=""))
 
 ```
