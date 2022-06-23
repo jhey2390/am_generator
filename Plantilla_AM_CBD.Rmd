@@ -583,7 +583,7 @@ cbdf2 <-
             i001d=digitos(i001),
             i001T=texto(i001d,NA,1), #texto tabletas
             i001_1=sum(f2_enie_tab_est),
-            ip001_1=round(i001_1/sum(f2_tab,na.rm = T)*100,2),
+            ip001_1=round(i001_1/i001*100,2),
             i001_1d=digitos(i001_1),
             i001_1T=texto(i001_1d,ip001_1,4), #texto tabletas estudiantes
             i001_2=sum(f2_enie_tab_doc),
@@ -698,7 +698,7 @@ cbdf2 <-
 
 #ENTREGA F2
 if(cbdf2$i001>0){
-  entregasP6<-paste("A la fecha se han **entregado** ",cbdf2$i001T," de la Fase II, que representa el ",cbdf2$ip001,"% del total de tabletas; de las cuales, ",cbdf2$i001_1T," y ", cbdf2$i001_2T,".",ifelse(cbdf2$i002>0,paste(" A su vez, ",cbdf2$i002T,", de los cuales,",cbdf2$i002_1T," y ",cbdf2$i002_2T,".",sep=""),""),ifelse(cbdf2$i003>0,paste(" Y ",cbdf2$i003T,", de los cuales, ",cbdf2$i003_1T," y ",cbdf2$i003_2T,".",sep=""),""),paste(" Atendiendo a ",cbdf2$i000T,"."),sep="")
+  entregasP6<-paste("A la fecha se han **entregado** ",cbdf2$i001T," de la Fase II, que representa el **",cbdf2$ip001,"%** del total de tabletas; de las cuales, ",cbdf2$i001_1T," y ", cbdf2$i001_2T,".",ifelse(cbdf2$i002>0,paste(" A su vez, ",cbdf2$i002T,", de los cuales,",cbdf2$i002_1T," y ",cbdf2$i002_2T,".",sep=""),""),ifelse(cbdf2$i003>0,paste(" Y ",cbdf2$i003T,", de los cuales, ",cbdf2$i003_1T," y ",cbdf2$i003_2T,".",sep=""),""),paste(" Atendiendo a ",cbdf2$i000T,"."),sep="")
   }else{
   entregasP6 <- paste("A la fecha de la actualización no se ha contabilizado la entrega, en las instituciones educativas focalizadas de la Fase II,", ifelse(cbdf2$i003>0,paste(" de ninguna tableta. ",ifelse(cbdf2$i003>0,paste(" Mientras que a la fecha se han entregado ",cbdf2$i003T,", de los cuales,",cbdf2$i003_1T," y ",cbdf2$i003_2T,".",sep=""),""),sep="")," de ningún dispositivo electrónico, bien sea tabletas o cargadores solares."),sep="")}
 
